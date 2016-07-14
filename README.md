@@ -69,8 +69,6 @@ EASY\_SDK\_AUDIO\_FRAME\_FLAG数据可支持多种音频格式：
 
 WEB：[www.EasyDarwin.org](http://www.easydarwin.org)
 
-Author：[Gavin@EasyDarwin.org](mailto:Gavin@EasyDarwin.org "Gavin@EasyDarwin.org")
-
 QQ交流群：[465901074](http://jq.qq.com/?_wv=1027&k=2G045mo "EasyRTSPClient")
 
 Copyright &copy; EasyDarwin.org 2012-2016
