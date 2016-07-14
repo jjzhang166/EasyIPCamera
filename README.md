@@ -32,8 +32,8 @@ EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持�
 	<tr><td colspan="3"><center>邮件获取更多平台版本</center></td></tr>
 	</table>
 
-## 调用流程 ##
-![](http://www.easydarwin.org/skin/easydarwin/images/easyrtspclient20160326.png)
+## 调用全流程 ##
+![](http://www.easydarwin.org/skin/easydarwin/images/easyipcamera20160715.png)
 
 
 ## 设计方法 ##
