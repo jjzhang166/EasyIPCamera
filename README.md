@@ -1,12 +1,12 @@
 # EasyIPCamera #
 
-EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持多种平台（包括Windows/Linux 32&64，ARM hisiv100/hisiv200/hisiv400等平台）的RTSPServer组件，以SDK形式提供，接口调用非常简单成熟，无需关注RTSPServer中关于客户端监听接入、音视频多路复用、RTSP具体流程、RTP打包与发送等相关问题，支持多种音视频格式，再也不用像调用live555 RTSPServer那样处理整个RTSP OPTIONS/DESCRIBE/SETUP/PLAY/RTP/RTCP的复杂流程和担心内存释放的问题了！
+EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持多种平台（包括Windows/Linux 32&64，ARM hisiv100/hisiv200/hisiv400等平台）的RTSPServer组件，接口调用非常简单成熟，无需关注RTSPServer中关于客户端监听接入、音视频多路复用、RTSP具体流程、RTP打包与发送等相关问题，支持多种音视频格式，再也不用像调用live555 RTSPServer那样处理整个RTSP OPTIONS/DESCRIBE/SETUP/PLAY/RTP/RTCP的复杂流程和担心内存释放的问题了！
 
 ## 调用示例 ##
 
 - **EasyIPCamera**：在不同的调用平台上，我们实现了不同的调用示例；
 	1. Windows上我们提供了采集摄像头/麦克风音视频做为数据源的RTSPServer程序；
-	2. Linux上我们提供了读取高清视频文件Demux音视频数据做为数据源的RTSPServer程序；
+	2. Linux上我们提供了读取高清视频MP4文件Demux音视频数据做为数据源的RTSPServer程序；
 	3. ARM上我们提供基于海思HI3518E、HI3518C、HI3516C的摄像机芯片编码后的音视频做为数据源的RTSPServer程序；
 	
 	Windows编译方法，
