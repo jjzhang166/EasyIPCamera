@@ -33,7 +33,7 @@ EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持�
 	</table>
 
 ## 调用全流程 ##
-![](http://www.easydarwin.org/skin/easydarwin/images/easyipcamera20160715.jpg)
+![](http://www.easydarwin.org/skin/easydarwin/images/easyipcamera20160715180159.png)
 
 
 ## 设计方法 ##
