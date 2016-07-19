@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}</ProjectGuid>
-    <RootNamespace>EasyIpCamera_Win</RootNamespace>
+    <RootNamespace>EasyIPCamera_Win</RootNamespace>
     <Keyword>MFCProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -107,8 +107,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="res\EasyIpCamera_Win.ico" />
-    <None Include="res\EasyIpCamera_Win.rc2" />
+    <None Include="res\EasyIPCamera_Win.ico" />
+    <None Include="res\EasyIPCamera_Win.rc2" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\EasyIPCameraAPI.h" />
@@ -128,8 +128,8 @@
     <ClInclude Include="EasyEncoder\stdint2.h" />
     <ClInclude Include="EasyEncoder\x264.h" />
     <ClInclude Include="EasyEncoder\x264_config.h" />
-    <ClInclude Include="EasyIpCamera_Win.h" />
-    <ClInclude Include="EasyIpCamera_WinDlg.h" />
+    <ClInclude Include="EasyIPCamera_Win.h" />
+    <ClInclude Include="EasyIPCamera_WinDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ServerManager.h" />
     <ClInclude Include="stdafx.h" />
@@ -144,8 +144,8 @@
     <ClCompile Include="EasyEncoder\FAACEncoder.cpp" />
     <ClCompile Include="EasyEncoder\H264Encoder.cpp" />
     <ClCompile Include="EasyEncoder\H264EncoderManager.cpp" />
-    <ClCompile Include="EasyIpCamera_Win.cpp" />
-    <ClCompile Include="EasyIpCamera_WinDlg.cpp" />
+    <ClCompile Include="EasyIPCamera_Win.cpp" />
+    <ClCompile Include="EasyIPCamera_WinDlg.cpp" />
     <ClCompile Include="ServerManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -154,14 +154,14 @@
     <ClCompile Include="YUVTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="EasyIpCamera_Win.rc" />
+    <ResourceCompile Include="EasyIPCamera_Win.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="EasyIpCamera_Win.rc" />
+      <UserProperties RESOURCE_FILE="EasyIPCamera_Win.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

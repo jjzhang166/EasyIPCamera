@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EasyIpCamera_Win", "EasyIpCamera_Win\EasyIpCamera_Win.vcxproj", "{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EasyIPCamera_Win", "EasyIPCamera_Win\EasyIPCamera_Win.vcxproj", "{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
