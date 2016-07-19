@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}</ProjectGuid>
+    <RootNamespace>EasyIpCamera_Win</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./EasyEncoder;./EasyMP4Writer;\DShowCapture\DirectShow\Include;./;.\EasySkinUI;C:\Program Files (x86)\Visual Leak Detector\include;.\VideoSource\USBCamera\DirectShow\Include;.\DShowCapture\DirectShow;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>./EasyEncoder;./EasyMP4Writer;.\DShowCapture\DirectShow\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdiplus.lib;d3d9.lib</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./EasyEncoder;./EasyMP4Writer;\DShowCapture\DirectShow\Include;./;.\EasySkinUI;C:\Program Files (x86)\Visual Leak Detector\include;.\VideoSource\USBCamera\DirectShow\Include;.\DShowCapture\DirectShow;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>./EasyEncoder;./EasyMP4Writer;.\DShowCapture\DirectShow\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdiplus.lib;d3d9.lib</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\EasyIpCamera_Win.ico" />
+    <None Include="res\EasyIpCamera_Win.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Include\EasyIPCameraAPI.h" />
+    <ClInclude Include="..\..\Include\EasyTypes.h" />
+    <ClInclude Include="DShowCapture\CaptureAudio.h" />
+    <ClInclude Include="DShowCapture\CaptureVideo.h" />
+    <ClInclude Include="DShowCapture\DShowCaptureAudioAndVideo_Interface.h" />
+    <ClInclude Include="DShowCapture\DshowDef.h" />
+    <ClInclude Include="DShowCapture\SampleGrabberCB.h" />
+    <ClInclude Include="EasyEncoder\faac.h" />
+    <ClInclude Include="EasyEncoder\faaccfg.h" />
+    <ClInclude Include="EasyEncoder\FAACEncoder.h" />
+    <ClInclude Include="EasyEncoder\H264Encoder.h" />
+    <ClInclude Include="EasyEncoder\H264EncoderManager.h" />
+    <ClInclude Include="EasyEncoder\inttypes.h" />
+    <ClInclude Include="EasyEncoder\stdint.h" />
+    <ClInclude Include="EasyEncoder\stdint2.h" />
+    <ClInclude Include="EasyEncoder\x264.h" />
+    <ClInclude Include="EasyEncoder\x264_config.h" />
+    <ClInclude Include="EasyIpCamera_Win.h" />
+    <ClInclude Include="EasyIpCamera_WinDlg.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ServerManager.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="YUVTransform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DShowCapture\CaptureAudio.cpp" />
+    <ClCompile Include="DShowCapture\CaptureVideo.cpp" />
+    <ClCompile Include="DShowCapture\DShowCaptureAudioAndVideo_Interface.cpp" />
+    <ClCompile Include="DShowCapture\SampleGrabberCB.cpp" />
+    <ClCompile Include="EasyEncoder\FAACEncoder.cpp" />
+    <ClCompile Include="EasyEncoder\H264Encoder.cpp" />
+    <ClCompile Include="EasyEncoder\H264EncoderManager.cpp" />
+    <ClCompile Include="EasyIpCamera_Win.cpp" />
+    <ClCompile Include="EasyIpCamera_WinDlg.cpp" />
+    <ClCompile Include="ServerManager.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="YUVTransform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EasyIpCamera_Win.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="EasyIpCamera_Win.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
