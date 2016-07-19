@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="EasyRTSPServer">
+      <UniqueIdentifier>{18c8d35f-dfac-463c-9139-823e46ed7e5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowCapture">
+      <UniqueIdentifier>{0d165912-2b39-4e1f-9314-85fc147dd12a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EasyEncoder">
+      <UniqueIdentifier>{eabfc19a-938c-4762-881f-f1f2116114d0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\EasyIpCamera_Win.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\EasyIpCamera_Win.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EasyIpCamera_Win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyIpCamera_WinDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\EasyIPCameraAPI.h">
+      <Filter>EasyRTSPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\EasyTypes.h">
+      <Filter>EasyRTSPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="YUVTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowCapture\CaptureAudio.h">
+      <Filter>DShowCapture</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowCapture\CaptureVideo.h">
+      <Filter>DShowCapture</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowCapture\DShowCaptureAudioAndVideo_Interface.h">
+      <Filter>DShowCapture</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowCapture\DshowDef.h">
+      <Filter>DShowCapture</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowCapture\SampleGrabberCB.h">
+      <Filter>DShowCapture</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\faac.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\faaccfg.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\FAACEncoder.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\H264Encoder.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\H264EncoderManager.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\inttypes.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\stdint.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\stdint2.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\x264.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyEncoder\x264_config.h">
+      <Filter>EasyEncoder</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EasyIpCamera_Win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyIpCamera_WinDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YUVTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DShowCapture\CaptureAudio.cpp">
+      <Filter>DShowCapture</Filter>
+    </ClCompile>
+    <ClCompile Include="DShowCapture\CaptureVideo.cpp">
+      <Filter>DShowCapture</Filter>
+    </ClCompile>
+    <ClCompile Include="DShowCapture\DShowCaptureAudioAndVideo_Interface.cpp">
+      <Filter>DShowCapture</Filter>
+    </ClCompile>
+    <ClCompile Include="DShowCapture\SampleGrabberCB.cpp">
+      <Filter>DShowCapture</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyEncoder\FAACEncoder.cpp">
+      <Filter>EasyEncoder</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyEncoder\H264Encoder.cpp">
+      <Filter>EasyEncoder</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyEncoder\H264EncoderManager.cpp">
+      <Filter>EasyEncoder</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EasyIpCamera_Win.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
