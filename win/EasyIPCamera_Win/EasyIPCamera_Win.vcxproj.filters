@@ -13,14 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="EasyRTSPServer">
-      <UniqueIdentifier>{18c8d35f-dfac-463c-9139-823e46ed7e5d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DShowCapture">
       <UniqueIdentifier>{0d165912-2b39-4e1f-9314-85fc147dd12a}</UniqueIdentifier>
     </Filter>
     <Filter Include="EasyEncoder">
       <UniqueIdentifier>{eabfc19a-938c-4762-881f-f1f2116114d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EasyIPCameraAPI">
+      <UniqueIdentifier>{18c8d35f-dfac-463c-9139-823e46ed7e5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,10 +52,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\EasyIPCameraAPI.h">
-      <Filter>EasyRTSPServer</Filter>
+      <Filter>EasyIPCameraAPI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\EasyTypes.h">
-      <Filter>EasyRTSPServer</Filter>
+      <Filter>EasyIPCameraAPI</Filter>
     </ClInclude>
     <ClInclude Include="YUVTransform.h">
       <Filter>Header Files</Filter>
