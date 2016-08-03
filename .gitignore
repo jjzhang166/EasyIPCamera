@@ -33,7 +33,7 @@ obj/
 *.264
 *.ts
 *.m3u8
-Movies*/
+*.ipch
 *.dep.inc
 *.opensdf
 *.doc
