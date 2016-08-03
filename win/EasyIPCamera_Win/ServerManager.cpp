@@ -279,9 +279,6 @@ void CServerManager::DSRealDataManager(int nDevId, unsigned char *pBuffer, int n
 						frame.u32AVFrameFlag = EASY_SDK_VIDEO_FRAME_FLAG;
 						frame.pBuffer = (Easy_U8*)pdata+4;
 						frame.u32AVFrameLen =  datasize-4;
-						long nTimeStamp = clock();
-						frame.u32TimestampSec = nTimeStamp/1000;
-						frame.u32TimestampUsec =  (nTimeStamp%1000)*1000;
 						frame.u32VFrameType   = ( keyframe ? EASY_SDK_VIDEO_FRAME_I : EASY_SDK_VIDEO_FRAME_P);
 						for (int nI=0; nI<MAX_CHANNELS; nI++)
 						{
@@ -322,9 +319,6 @@ void CServerManager::DSRealDataManager(int nDevId, unsigned char *pBuffer, int n
 					frame.u32AVFrameFlag = EASY_SDK_AUDIO_FRAME_FLAG;
 					frame.pBuffer = (Easy_U8*)pAACbuf;
 					frame.u32AVFrameLen =  datasize;
-					long nTimeStamp = clock();
-					frame.u32TimestampSec = nTimeStamp/1000;
-					frame.u32TimestampUsec =  (nTimeStamp%1000)*1000;
 					for (int nI=0; nI<MAX_CHANNELS; nI++)
 					{
 						int nRet = EasyIPCamera_PushFrame(nI,  &frame);
