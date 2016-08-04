@@ -31,6 +31,9 @@
     <None Include="res\EasyIpCamera_Win.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\icoPen.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyIpCamera_Win.h">
@@ -105,6 +108,15 @@
     <ClInclude Include="EasyEncoder\x264_config.h">
       <Filter>EasyEncoder</Filter>
     </ClInclude>
+    <ClInclude Include="CaptureScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlashingWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vstime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyIpCamera_Win.cpp">
@@ -142,6 +154,15 @@
     </ClCompile>
     <ClCompile Include="EasyEncoder\H264EncoderManager.cpp">
       <Filter>EasyEncoder</Filter>
+    </ClCompile>
+    <ClCompile Include="CaptureScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlashingWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vstime.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

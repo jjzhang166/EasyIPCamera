@@ -44,11 +44,18 @@ public:
 		int& nSampleRate ,
 		int& nChannels ,
 		int& nPort);
+	void EnumLocalAVDevice();
 
 private:
 	//接口层调用管理
 	CServerManager* m_pServerManager; 
+	int m_nSourceType;
+	int m_nVideoType;
 
 public:
 	afx_msg void OnDestroy();
+	afx_msg void OnCbnSelchangeComboSource();
+	afx_msg void OnCbnSelchangeComboVideo();
+	afx_msg void OnCbnEditchangeComboSource();
+	afx_msg void OnCbnEditchangeComboVideo();
 };

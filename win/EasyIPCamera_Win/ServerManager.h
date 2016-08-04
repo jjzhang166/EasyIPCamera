@@ -10,8 +10,8 @@
 //RTSPServer support
 #include "../../Include/EasyIPCameraAPI.h"
 #pragma comment(lib, "../../Lib/libEasyIPCamera.lib")
-
 #include "YUVTransform.h"
+#include "CaptureScreen.h"
 
 #define MSG_LOG 1001
 #define MAX_CHANNELS 6
@@ -19,10 +19,10 @@
 typedef enum tagSOURCE_TYPE
 {
 	SOURCE_LOCAL_CAMERA = 0,//本地音视频
-	SOURCE_RTSP_STREAM=1,//RTSP流
-	SOURCE_SCREEN_CAPTURE =2,//屏幕捕获
-	SOURCE_FILE_STREAM = 3,       //文件流推送(mp4,ts,flv???)
-	// 	//SOURCE_ONVIF_STREAM=3,//Onvif流
+	SOURCE_SCREEN_CAPTURE =1,//屏幕捕获
+	SOURCE_FILE_STREAM = 2,       //文件流推送(mp4,ts,flv???)
+	SOURCE_RTSP_STREAM=3,//RTSP流
+	// 	//SOURCE_ONVIF_STREAM=4,//Onvif流
 
 }SOURCE_TYPE;
 
@@ -50,6 +50,16 @@ public:
 		RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo, void* pMaster);
 	void DSRealDataManager(int nDevId, unsigned char *pBuffer, int nBufSize, 
 		RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo);
+	
+	//屏幕采集相关
+	int StartScreenCapture(HWND hShowWnd, int nCapMode);
+	void StopScreenCapture();
+	void RealseScreenCapture();
+	int GetScreenCapSize(int& nWidth, int& nHeight);
+	//回调函数
+	static int CALLBACK CaptureScreenCallBack(int nId, unsigned char *pBuffer, int nBufSize,  RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo, void* pMaster);
+	void CaptureScreenManager(int nId, unsigned char *pBuffer, int nBufSize,  RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo);
+
 
 	BOOL IsInCapture()
 	{
@@ -97,6 +107,11 @@ public:
 	void SetMainDlg(CEasyIpCamera_WinDlg* pMainDlg);
 
 private:
+	//屏幕捕获管理
+	CCaptureScreen* m_pScreenCaptrue;
+	HWND m_hCaptureWnd;
+	int m_nScreenCaptureId;
+
 	CEasyIpCamera_WinDlg* m_pMainDlg;
 	//视频设备控制实例
 	LPVideoCapturer m_pVideoManager;

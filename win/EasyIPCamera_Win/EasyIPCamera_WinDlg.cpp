@@ -53,6 +53,8 @@ CEasyIpCamera_WinDlg::CEasyIpCamera_WinDlg(CWnd* pParent /*=NULL*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pServerManager = NULL;
+	 m_nSourceType = -1;
+	 m_nVideoType = -1;
 }
 
 void CEasyIpCamera_WinDlg::DoDataExchange(CDataExchange* pDX)
@@ -67,12 +69,59 @@ BEGIN_MESSAGE_MAP(CEasyIpCamera_WinDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_START, &CEasyIpCamera_WinDlg::OnBnClickedBtnStart)
 	ON_BN_CLICKED(IDC_BTN_END, &CEasyIpCamera_WinDlg::OnBnClickedBtnEnd)
 	ON_MESSAGE(MSG_LOG, &CEasyIpCamera_WinDlg::OnLog)
-
 	ON_WM_DESTROY()
+	ON_CBN_SELCHANGE(IDC_COMBO_SOURCE, &CEasyIpCamera_WinDlg::OnCbnSelchangeComboSource)
+	ON_CBN_SELCHANGE(IDC_COMBO_VIDEO, &CEasyIpCamera_WinDlg::OnCbnSelchangeComboVideo)
+	ON_CBN_EDITCHANGE(IDC_COMBO_SOURCE, &CEasyIpCamera_WinDlg::OnCbnEditchangeComboSource)
+	ON_CBN_EDITCHANGE(IDC_COMBO_VIDEO, &CEasyIpCamera_WinDlg::OnCbnEditchangeComboVideo)
 END_MESSAGE_MAP()
 
 
 // CEasyIpCamera_WinDlg message handlers
+
+void CEasyIpCamera_WinDlg::EnumLocalAVDevice()
+{
+	//枚举音视频输入设备
+	DEVICE_LIST_T* camList = m_pServerManager->GetCameraList();
+	DEVICE_LIST_T* micList = m_pServerManager->GetAudioInputDevList();
+
+	CComboBox * pVideoSource = (CComboBox *)GetDlgItem(IDC_COMBO_VIDEO);
+	if (pVideoSource)
+	{
+		pVideoSource->ResetContent();
+	}
+	CComboBox * pAudioSource = (CComboBox *)GetDlgItem(IDC_COMBO_AUDIO);
+	if (pAudioSource)
+	{
+		pAudioSource->ResetContent();
+	}
+
+	DEVICE_INFO_T	*pCameraInfo = camList->pCamera;
+	DEVICE_INFO_T	*pMicInfo = micList->pCamera;
+	if (NULL != pCameraInfo)
+	{
+		while (pCameraInfo)
+		{
+			CString strName = (CString)pCameraInfo->friendlyName;
+			pVideoSource->AddString(strName);
+			//CAMERA_INFO_T	*pCameraInfo
+			pCameraInfo = pCameraInfo->pNext;
+		}
+	}
+	if (NULL != pMicInfo)
+	{
+		while (pMicInfo)
+		{
+			CString strName = (CString)pMicInfo->friendlyName;
+			pAudioSource->AddString(strName);
+			//CAMERA_INFO_T	*pCameraInfo
+			pMicInfo = pMicInfo->pNext;		
+		}
+	}
+
+	pVideoSource->SetCurSel(0);
+	pAudioSource->SetCurSel(0);
+}
 
 BOOL CEasyIpCamera_WinDlg::OnInitDialog()
 {
@@ -107,36 +156,17 @@ BOOL CEasyIpCamera_WinDlg::OnInitDialog()
 	m_pServerManager = new CServerManager();
 	m_pServerManager->SetMainDlg(this);
 
-	//枚举音视频输入设备
-	DEVICE_LIST_T* camList = m_pServerManager->GetCameraList();
-	DEVICE_LIST_T* micList = m_pServerManager->GetAudioInputDevList();
-
-	CComboBox * pVideoSource = (CComboBox *)GetDlgItem(IDC_COMBO_VIDEO);
-	CComboBox * pAudioSource = (CComboBox *)GetDlgItem(IDC_COMBO_AUDIO);
-	DEVICE_INFO_T	*pCameraInfo = camList->pCamera;
-	DEVICE_INFO_T	*pMicInfo = micList->pCamera;
-	if (NULL != pCameraInfo)
-	{
-		while (pCameraInfo)
-		{
-			CString strName = (CString)pCameraInfo->friendlyName;
-			pVideoSource->AddString(strName);
-			//CAMERA_INFO_T	*pCameraInfo
-			pCameraInfo = pCameraInfo->pNext;
-		}
+	CComboBox * pSourceType = (CComboBox *)GetDlgItem(IDC_COMBO_SOURCE);
+	if (pSourceType)
+	{		
+		pSourceType->AddString(_T("本地音视频采集"));
+		pSourceType->AddString(_T("屏幕采集"));
+// 		pSourceType->AddString(_T("文件采集"));
+// 		pSourceType->AddString(_T("网络RTSP流采集"));
+		
+		pSourceType->SetCurSel(0);
 	}
-	if (NULL != pMicInfo)
-	{
-		while (pMicInfo)
-		{
-			CString strName = (CString)pMicInfo->friendlyName;
-			pAudioSource->AddString(strName);
-			//CAMERA_INFO_T	*pCameraInfo
-			pMicInfo = pMicInfo->pNext;		
-		}
-	}
-	pVideoSource->SetCurSel(0);
-	pAudioSource->SetCurSel(0);
+	EnumLocalAVDevice();
 
 	//设置采集参数初始化值
 	CEdit* pEdit =NULL;
@@ -361,11 +391,48 @@ void CEasyIpCamera_WinDlg::OnBnClickedBtnStart()
 		int nPort = 8554;
 		//从界面获取采集参数设置
 		GetCaptureParamOnDlg(nVCapID, nACapID, nWidth, nHeight, nFps, nBitrate, nSampRate, nChannels,nPort );
+		int nSelSourceType = 0;
+		CComboBox * pSourceType = (CComboBox *)GetDlgItem(IDC_COMBO_SOURCE);
+		if (pSourceType)
+		{
+			nSelSourceType = pSourceType->GetCurSel();
+		}
+		char  szDataType[64];
+		if (nSelSourceType == 0)
+		{
+			strcpy_s(szDataType, "YUY2" );
+		} 
+		else if(nSelSourceType == 1)
+		{
+			nVCapID = -1;
+			strcpy_s(szDataType, "RGB24" )	;
+			int nRet =m_pServerManager->GetScreenCapSize(nWidth, nHeight);
+			if (nRet<1)
+			{
+				m_pServerManager->LogErr(_T("屏幕采集获取长宽失败，本地预览失败！"));
+				return;
+			}
+			CEdit* pEdit = NULL;
+			pEdit = (CEdit*)GetDlgItem(IDC_EDIT_WIDTH);
+			if (pEdit)
+			{
+				CString strWidth = _T("");  
+				strWidth.Format(_T("%d"), nWidth);
+				pEdit->SetWindowText(strWidth);
+			}
+
+			pEdit = (CEdit*)GetDlgItem(IDC_EDIT_HEIGHT);
+			if (pEdit)
+			{
+				CString strHeight = _T("");  
+				strHeight.Format(_T("%d"), nHeight);
+				pEdit->SetWindowText(strHeight);
+			}
+		}
 
 		//Start capture
 		int nRet = 0;
-		
-		nRet = m_pServerManager->StartCapture(SOURCE_LOCAL_CAMERA, nVCapID , nACapID, hVideo, nWidth, nHeight, nFps, nBitrate, "YUY2", nSampRate, nChannels);
+		nRet = m_pServerManager->StartCapture((SOURCE_TYPE)nSelSourceType, nVCapID , nACapID, hVideo, nWidth, nHeight, nFps, nBitrate, szDataType, nSampRate, nChannels);
 		if (nRet>=0)
 		{
 			m_pServerManager->LogErr(_T("音视频采集成功。"));
@@ -442,8 +509,100 @@ void CEasyIpCamera_WinDlg::OnDestroy()
 	{
 		m_pServerManager->StopServer();
 		m_pServerManager->StopCapture();
+		m_pServerManager->RealseScreenCapture();
+
 		delete m_pServerManager;
 		m_pServerManager = NULL;
 	}
-	// TODO: Add your message handler code here
+}
+
+//源选择切换
+void CEasyIpCamera_WinDlg::OnCbnSelchangeComboSource()
+{
+	CComboBox * pSourceType = (CComboBox *)GetDlgItem(IDC_COMBO_SOURCE);
+	if (pSourceType)
+	{
+		int nSelSourceType = pSourceType->GetCurSel();
+		if (m_nSourceType == nSelSourceType)
+		{
+			return ;
+		}
+		m_nSourceType = nSelSourceType;
+
+		if (m_pServerManager)
+		{
+			m_pServerManager->StopScreenCapture();
+		}
+
+		if (nSelSourceType == 0)
+		{
+			EnumLocalAVDevice();
+		} 
+		else if(nSelSourceType==1)
+		{
+			CComboBox * pVideoSource = (CComboBox *)GetDlgItem(IDC_COMBO_VIDEO);
+			if (pVideoSource)
+			{
+				//pVideoSource->Clear();
+				pVideoSource->ResetContent();
+
+				pVideoSource->AddString(_T("固定长宽"));
+				pVideoSource->AddString(_T("自定义"));
+				pVideoSource->AddString(_T("全屏"));
+				//pVideoSource->AddString(_T("随鼠标移动"));
+				pVideoSource->SetCurSel(0);
+				int nSelScreenMode = pVideoSource->GetCurSel();
+				if (m_pServerManager)
+				{
+					HWND hVideo= GetDlgItem(IDC_STATIC_VIDEOWND)->GetSafeHwnd();
+					m_pServerManager->StartScreenCapture( hVideo, nSelScreenMode);
+				}
+			}
+		}
+	}
+}
+
+//视频源选择切换
+void CEasyIpCamera_WinDlg::OnCbnSelchangeComboVideo()
+{
+	CComboBox * pSourceType = (CComboBox *)GetDlgItem(IDC_COMBO_SOURCE);
+	if (pSourceType)
+	{
+		int nSelSourceType = pSourceType->GetCurSel();
+		if (nSelSourceType == 1)//屏幕捕获切换
+		{
+
+			CComboBox * pVideoSource = (CComboBox *)GetDlgItem(IDC_COMBO_VIDEO);
+			if (pVideoSource)
+			{
+				int nSelScreenMode = pVideoSource->GetCurSel();
+				if (m_nVideoType == nSelScreenMode)
+				{
+					return ;
+				}
+				m_nVideoType = nSelScreenMode;
+				if (m_pServerManager)
+				{
+					m_pServerManager->StopScreenCapture();
+				}
+				if (m_pServerManager)
+				{
+					HWND hVideo= GetDlgItem(IDC_STATIC_VIDEOWND)->GetSafeHwnd();
+					m_pServerManager->StartScreenCapture( hVideo, nSelScreenMode);
+				}
+			}
+		}
+	}
+}
+
+
+void CEasyIpCamera_WinDlg::OnCbnEditchangeComboSource()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CEasyIpCamera_WinDlg::OnCbnEditchangeComboVideo()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

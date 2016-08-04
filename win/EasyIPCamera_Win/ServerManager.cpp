@@ -11,8 +11,10 @@ CServerManager::CServerManager(void)
 	m_pFrameBuf = NULL;
 	m_pVideoManager=NULL;
 	m_pAudioManager=NULL;
+	m_hCaptureWnd = NULL;
+	m_nScreenCaptureId = -1;
+	m_pScreenCaptrue = NULL;
 }
-
 
 CServerManager::~CServerManager(void)
 {
@@ -69,6 +71,9 @@ int CServerManager::StartDSCapture(int nCamId, int nAudioId,HWND hShowWnd,int nV
 	m_sDevConfigInfo.AudioInfo.nSampleRate = nSampleRate;//44100;//
 	m_sDevConfigInfo.AudioInfo.nChannaels = nChannel;
 	m_sDevConfigInfo.AudioInfo.nPinType = 2;
+
+	//初始化RGB24->I420色彩空间转换表，便于转换时查询，提高效率
+	InitLookupTable();
 
 	//x264+faac Encoder --- Init Start
 	if(!m_pEncConfigInfo)
@@ -164,7 +169,7 @@ int CServerManager::StartDSCapture(int nCamId, int nAudioId,HWND hShowWnd,int nV
 	{
 		Release_VideoCapturer(m_pVideoManager)	;
 		m_pVideoManager = NULL;
-		LogErr(_T("当前视频设备不可用!"));
+		LogErr(_T("当前没有使用任何视频设备!"));
 	}
 
 	//音频可用
@@ -261,7 +266,10 @@ void CServerManager::DSRealDataManager(int nDevId, unsigned char *pBuffer, int n
 				}
 				else //默认==RGB24
 				{
-					pDesBuffer = pBuffer;
+					pDataBuffer=new unsigned char[nWidhtHeightBuf];
+					// rgb24->i420
+					ConvertRGB2YUV(nVideoWidth,nVideoHeight,pBuffer, (unsigned char*)pDataBuffer);
+					pDesBuffer = pDataBuffer;
 				}
 
 				int datasize=0;
@@ -279,6 +287,9 @@ void CServerManager::DSRealDataManager(int nDevId, unsigned char *pBuffer, int n
 						frame.u32AVFrameFlag = EASY_SDK_VIDEO_FRAME_FLAG;
 						frame.pBuffer = (Easy_U8*)pdata+4;
 						frame.u32AVFrameLen =  datasize-4;
+// 						long nTimeStamp = clock();
+// 						frame.u32TimestampSec = nTimeStamp/1000;
+// 						frame.u32TimestampUsec =  (nTimeStamp%1000)*1000;
 						frame.u32VFrameType   = ( keyframe ? EASY_SDK_VIDEO_FRAME_I : EASY_SDK_VIDEO_FRAME_P);
 						for (int nI=0; nI<MAX_CHANNELS; nI++)
 						{
@@ -319,6 +330,9 @@ void CServerManager::DSRealDataManager(int nDevId, unsigned char *pBuffer, int n
 					frame.u32AVFrameFlag = EASY_SDK_AUDIO_FRAME_FLAG;
 					frame.pBuffer = (Easy_U8*)pAACbuf;
 					frame.u32AVFrameLen =  datasize;
+// 					long nTimeStamp = clock();
+// 					frame.u32TimestampSec = nTimeStamp/1000;
+// 					frame.u32TimestampUsec =  (nTimeStamp%1000)*1000;
 					for (int nI=0; nI<MAX_CHANNELS; nI++)
 					{
 						int nRet = EasyIPCamera_PushFrame(nI,  &frame);
@@ -440,4 +454,82 @@ void CServerManager::LogErr(CString strLog)
 		delete[] szLog;
 		szLog = NULL;
 	}
+}
+
+//屏幕采集
+int CServerManager::StartScreenCapture(HWND hShowWnd, int nCapMode)
+{
+	if (!m_pScreenCaptrue)
+	{
+		//实例化屏幕捕获管理类指针
+		m_pScreenCaptrue =  CCaptureScreen::Instance(m_nScreenCaptureId);
+		if (!m_pScreenCaptrue)
+		{
+			return -1;
+		}
+		m_pScreenCaptrue->SetCaptureScreenCallback((CaptureScreenCallback)&CServerManager::CaptureScreenCallBack, this);
+	}
+	if (m_pScreenCaptrue->IsInCapturing())
+	{
+		return -1;
+	}
+	return m_pScreenCaptrue->StartScreenCapture(hShowWnd, nCapMode);
+}
+
+void CServerManager::StopScreenCapture()
+{
+	if (m_pScreenCaptrue)
+	{
+		if (m_pScreenCaptrue->IsInCapturing())
+		{
+			m_pScreenCaptrue->StopScreenCapture();
+		}
+	}
+}
+
+void CServerManager::RealseScreenCapture()
+{
+	if (m_pScreenCaptrue)
+	{
+		CCaptureScreen::UnInstance(m_nScreenCaptureId);
+		m_pScreenCaptrue = NULL;
+	}
+}
+
+int CServerManager::GetScreenCapSize(int& nWidth, int& nHeight)
+{
+	if (m_pScreenCaptrue)
+	{
+		if (m_pScreenCaptrue->IsInCapturing())
+		{
+			m_pScreenCaptrue->GetCaptureScreenSize(nWidth, nHeight );
+			return 1;
+		}
+		else
+			return -1;
+	}
+	return -1;
+}
+
+int CALLBACK CServerManager::CaptureScreenCallBack(int nId, unsigned char *pBuffer, int nBufSize,  RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo, void* pMaster)
+{
+	if (!pBuffer || nBufSize <= 0)
+	{
+		return -1;
+	}
+
+	//转到当前实例进行处理
+	CServerManager* pThis = (CServerManager*)pMaster;
+	if (pThis)
+	{
+		pThis->CaptureScreenManager(nId, pBuffer, nBufSize,  realDataType, realDataInfo);
+	}
+	return 1;
+}
+
+void CServerManager::CaptureScreenManager(int nId, unsigned char *pBuffer, int nBufSize,  RealDataStreamType realDataType, /*RealDataStreamInfo*/void* realDataInfo)
+{
+	ScreenCapDataInfo* pDataInfo = (ScreenCapDataInfo*)realDataInfo;
+
+	DSRealDataManager(nId, pBuffer,nBufSize,  realDataType, realDataInfo );
 }
