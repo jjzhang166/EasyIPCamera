@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EasyIPCamera_RTSP", "EasyIPCamera_RTSP\EasyIPCamera_RTSP.vcxproj", "{60271A0C-3634-40FF-9997-269CF5DDB9FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EasyIPCamera_Win", "EasyIPCamera_Win\EasyIPCamera_Win.vcxproj", "{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{60271A0C-3634-40FF-9997-269CF5DDB9FE}.Debug|Win32.Build.0 = Debug|Win32
 		{60271A0C-3634-40FF-9997-269CF5DDB9FE}.Release|Win32.ActiveCfg = Release|Win32
 		{60271A0C-3634-40FF-9997-269CF5DDB9FE}.Release|Win32.Build.0 = Release|Win32
+		{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}.Debug|Win32.Build.0 = Debug|Win32
+		{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}.Release|Win32.ActiveCfg = Release|Win32
+		{58B88D78-5ACB-4C70-A25C-3BBD7B85C5AA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
