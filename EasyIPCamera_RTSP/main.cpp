@@ -167,7 +167,7 @@ Easy_I32 __EasyIPCamera_Callback(Easy_I32 channelId, EASY_IPCAMERA_STATE_T chann
 		for (int i=0; i<6; i++)
 		{
 			//注:   此处视情况而定，判断是否需有音频
-			if (pChannel[channelId].mediaInfo.u32VideoCodec>0 && pChannel[channelId].mediaInfo.u32AudioCodec>0)
+			if ( pChannel[channelId].mediaInfo.u32VideoCodec > 0 )
 			{
 				memcpy(_mediaInfo, &pChannel[channelId].mediaInfo, sizeof(EASY_MEDIA_INFO_T));
 				break;
@@ -230,7 +230,7 @@ int main()
 		if (i==0)
 		{
 			channel[i].sourceType = SOURCE_TYPE_RTSP;
-			strcpy(channel[i].source_uri, "rtsp://192.168.1.189/11");
+			strcpy(channel[i].source_uri, "rtsp://admin:admin@192.168.66.222/33");
 			strcpy(channel[i].username, "admin");
 			strcpy(channel[i].password, "admin");
 		}
