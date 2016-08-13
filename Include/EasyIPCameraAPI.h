@@ -4,7 +4,14 @@
 
 #include "EasyTypes.h"
 
-#define RTSP_SERVER_NAME	"EasyIPCamera v1.16.0714"
+#define RTSP_SERVER_NAME	"EasyIPCamera v1.16.0812"
+
+
+typedef enum _AUTHENTICATION_TYPE_ENUM
+{
+	AUTHENTICATION_TYPE_BASIC		=	0x00,
+	AUTHENTICATION_TYPE_DIGEST,
+}AUTHENTICATION_TYPE_ENUM;
 
 typedef struct __LIVE_CHANNEL_INFO_T
 {
@@ -41,7 +48,7 @@ extern "C"
 
 	/* 启动 Rtsp Server */
 	/*设置监听端口, 回调函数及自定义数据 */
-	Easy_API Easy_I32 Easy_APICALL EasyIPCamera_Startup(Easy_U16 listenport, Easy_U8 *username, Easy_U8 *password, EasyIPCamera_Callback callback, void *userptr, LIVE_CHANNEL_INFO_T *channelInfo, Easy_U32 channelNum);
+	Easy_API Easy_I32 Easy_APICALL EasyIPCamera_Startup(Easy_U16 listenport, AUTHENTICATION_TYPE_ENUM authType, char *realm, Easy_U8 *username, Easy_U8 *password, EasyIPCamera_Callback callback, void *userptr, LIVE_CHANNEL_INFO_T *channelInfo, Easy_U32 channelNum);
 	
 	/* 终止 Rtsp Server */
 	Easy_API Easy_I32 Easy_APICALL EasyIPCamera_Shutdown();
