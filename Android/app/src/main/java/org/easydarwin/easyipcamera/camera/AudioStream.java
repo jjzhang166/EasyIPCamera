@@ -41,7 +41,7 @@ public class AudioStream {
     String TAG = "AudioStream";
     //final String path = Environment.getExternalStorageDirectory() + "/123450001.aac";
     boolean stoped = false;
-    private int mPushStream = 0;
+    private int mChannelState = 0;
 
     protected MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
     protected ByteBuffer[] mBuffers = null;
@@ -158,8 +158,8 @@ public class AudioStream {
                         byte[] buffer = new byte[size];
                         mBuffer.get(buffer);
 
-                        Log.d(TAG, "kim mPushStream="+mPushStream+", mChannelId="+mChannelId+", length="+buffer.length);
-                        if(mPushStream == 2) {
+                        Log.d(TAG, "kim mChannelState="+mChannelState+", mChannelId="+mChannelId+", length="+buffer.length);
+                        if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
                             mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_AUDIO_FRAME_FLAG, buffer.length, 0, buffer);
                         }
 
@@ -278,8 +278,8 @@ public class AudioStream {
         this.mChannelId = channelId;
     }
 
-    public void setPushStream(int state){
-        mPushStream = state;
+    public void setChannelState(int state){
+        mChannelState = state;
     }
 
 }

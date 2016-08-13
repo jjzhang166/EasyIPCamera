@@ -45,6 +45,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     List<String> listResolution;
     MediaStream mMediaStream;
     TextView txtStatus;
+    private boolean mIsStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,8 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         mMediaStream.updateResolution(width, height);
         mMediaStream.setDgree(getDgree());
         initSpninner();
+
+        mIsStarted = false;
     }
 
     private static final String STATE = "state";
@@ -122,7 +125,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                 width = Integer.parseInt(splitR[0]);
                 height = Integer.parseInt(splitR[1]);
                 mMediaStream.updateResolution(width, height);
-                mMediaStream.reStartStream();
+                //mMediaStream.reStartStream();
             }
 
             @Override
@@ -175,7 +178,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_switch:
-                if (0 == mMediaStream.isStreaming()) {
+                if (!mIsStarted) {
                     String ip = Util.getLocalIpAddress();
                     String port = EasyApplication.getEasyApplication().getPort();
                     String id = EasyApplication.getEasyApplication().getId();
@@ -183,10 +186,12 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                     btnSwitch.setText("停止");
                     txtStreamAddress.setVisibility(View.VISIBLE);
                     txtStreamAddress.setText(String.format("rtsp://%s:%s/%s", ip, port, id));
+                    mIsStarted = true;
                 } else {
                     txtStreamAddress.setVisibility(View.INVISIBLE);
                     mMediaStream.stopStream();
                     btnSwitch.setText("开始");
+                    mIsStarted = false;
                 }
                 break;
             case R.id.btn_setting:

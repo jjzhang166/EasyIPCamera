@@ -12,11 +12,12 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import org.easydarwin.easyipcamera.camera.AudioStream;
+import org.easydarwin.easyipcamera.activity.EasyApplication;
 import org.easydarwin.easyipcamera.hw.EncoderDebugger;
 import org.easydarwin.easyipcamera.hw.NV21Convertor;
 import org.easydarwin.easyipcamera.util.Util;
@@ -45,7 +46,8 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     SurfaceHolder mSurfaceHolder;
     Camera mCamera;
     NV21Convertor mConvertor;
-    int pushStream = 0;//是否要推送数据   0: 停止状态   1: 开始状态   2:有client请求流
+    //int pushStream = 0;//是否要推送数据   0: 停止状态   1: 开始状态   2:有client请求流
+    private int mChannelState = 0;
     AudioStream audioStream;
     private boolean isCameraBack = true;
     private int mDgree;
@@ -89,7 +91,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         mEasyIPCamera.unrigisterCallback(this);
         mChannelId = mEasyIPCamera.registerCallback(this);
         audioStream.setChannelId(mChannelId);
-        startMediaCodec();
+        initMediaCodec();
         createCamera();
         startPreview();
     }
@@ -164,7 +166,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         }
     }
 
-
+    static int test = 0;
     Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         ByteBuffer[] inputBuffers;
         byte[] dst;
@@ -172,10 +174,17 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
-            if (data == null || (0 == pushStream) || !codecAvailable) {
+            if (data == null || !codecAvailable) {
                 mCamera.addCallbackBuffer(data);
                 return;
             }
+
+            if((EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO != mChannelState) &&
+                    (EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM != mChannelState)){
+                mCamera.addCallbackBuffer(data);
+                return;
+            }
+
             Camera.Size previewSize = mCamera.getParameters().getPreviewSize();
             if (data.length != previewSize.width * previewSize.height * 3 / 2) {
                 mCamera.addCallbackBuffer(data);
@@ -234,9 +243,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                             outData = iframeData;
                         }
 
-                        if(pushStream == 2) {
+                        if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
                             int result = mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, outData.length, 0, outData);
-                            //Log.d(TAG, "kim pushFrame result="+result+", frame length="+outData.length);
+                            Log.d(TAG, "kim pushFrame result="+result+", frame length="+outData.length+", type="+type);
                         }
                         mMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);
@@ -332,31 +341,36 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     /**
      * 初始化编码器
      */
+    private void initMediaCodec() {
+        framerate = 25;
+        bitrate = 2 * width * height * framerate / 20;
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, width, height);
+        mConvertor = debugger.getNV21Convertor();
+
+        mSps = Base64.decode(debugger.getB64SPS(), Base64.NO_WRAP);
+        mPps = Base64.decode(debugger.getB64PPS(), Base64.NO_WRAP);
+    }
+
     private void startMediaCodec() {
-        {
-            framerate = 25;
-            bitrate = 2 * width * height * framerate / 20;
-            EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, width, height);
-            mConvertor = debugger.getNV21Convertor();
-            try {
-                mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
-                MediaFormat mediaFormat;
-                if (mDgree == 0) {
-                    mediaFormat = MediaFormat.createVideoFormat("video/avc", height, width);
-                } else {
-                    mediaFormat = MediaFormat.createVideoFormat("video/avc", width, height);
-                }
-                mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
-                mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
-                mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                        debugger.getEncoderColorFormat());
-                mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
-                mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-                mMediaCodec.start();
-                codecAvailable = true;
-            } catch (IOException e) {
-                e.printStackTrace();
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, width, height);
+        try {
+            mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
+            MediaFormat mediaFormat;
+            if (mDgree == 0) {
+                mediaFormat = MediaFormat.createVideoFormat("video/avc", height, width);
+            } else {
+                mediaFormat = MediaFormat.createVideoFormat("video/avc", width, height);
             }
+            mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
+            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
+            mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
+                    debugger.getEncoderColorFormat());
+            mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+            mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+            mMediaCodec.start();
+            codecAvailable = true;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -372,14 +386,10 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         }
     }
 
-    public int isStreaming() {
-        return pushStream;
-    }
-
-    private void setPushStream(int state){
+    private void setChannelState(int state){
         if(state <= 2) {
-            pushStream = state;
-            audioStream.setPushStream(state);
+            mChannelState = state;
+            audioStream.setChannelState(state);
         }
     }
 
@@ -392,21 +402,17 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes());
         Log.d(TAG, "kim startup result="+result);
 
-        setPushStream(1);
-
-        //TODO:音频目前有问题，暂时只推视频数据
-        //audioStream.startRecord();
-
-        startMediaCodec();
+        initMediaCodec();
     }
 
     public void stopStream() {
-        setPushStream(0);
+        setChannelState(0);
 
         //TODO:音频目前有问题，暂时只推视频数据
         //audioStream.stop();
 
         stopMediaCodec();
+
         mEasyIPCamera.resetChannel(mChannelId);
         int result = mEasyIPCamera.shutdown();
         Log.d(TAG, "kim shutdown result="+result);
@@ -415,10 +421,11 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     }
 
     public void destroyStream() {
-        setPushStream(0);
         if (pushThread != null) {
             pushThread.interrupt();
         }
+        setChannelState(0);
+
         destroyCamera();
         stopMediaCodec();
         mEasyIPCamera.resetChannel(mChannelId);
@@ -427,9 +434,11 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
     @Override
     public void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr) {
-        Log.d(TAG, "kim onIPCameraCallBack, channelId="+channelId+", channelState="+channelState);
+//        Log.d(TAG, "kim onIPCameraCallBack, channelId="+channelId+", mChannelId="+mChannelId+", channelState="+channelState);
         if(channelId != mChannelId)
             return;
+
+        setChannelState(channelState);
 
         switch(channelState){
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_ERROR:
@@ -478,11 +487,14 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 buffer.put(mMei);
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM:
-                setPushStream(2);
+                startMediaCodec();
+                //TODO:音频目前有问题，暂时只推视频数据
+                //audioStream.startRecord();
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM:
-                if(pushStream == 2)
-                    setPushStream(1);
+                stopMediaCodec();
+                //TODO:音频目前有问题，暂时只推视频数据
+                //audioStream.stop();
                 break;
             default:
                 break;
