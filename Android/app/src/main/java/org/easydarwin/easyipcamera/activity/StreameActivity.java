@@ -125,7 +125,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                 width = Integer.parseInt(splitR[0]);
                 height = Integer.parseInt(splitR[1]);
                 mMediaStream.updateResolution(width, height);
-                //mMediaStream.reStartStream();
+                mMediaStream.reStartStream();
             }
 
             @Override
