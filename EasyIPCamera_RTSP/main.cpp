@@ -260,7 +260,7 @@ int main()
 		strcpy(liveChannel[i].name, channel[i].name);
 	}
 
-	EasyIPCamera_Startup(rtspPort, (unsigned char*)"", (unsigned char*)"", __EasyIPCamera_Callback, (void *)&channel[0], &liveChannel[0], MAX_CHANNEL_NUM);
+	EasyIPCamera_Startup(rtspPort, AUTHENTICATION_TYPE_BASIC,"", (unsigned char*)"", (unsigned char*)"", __EasyIPCamera_Callback, (void *)&channel[0], &liveChannel[0], MAX_CHANNEL_NUM);
 	//EasyIPCamera_Startup(554, NULL, NULL, __EasyIPCamera_Callback, (void *)&channel[0], &liveChannel[0], MAX_CHANNEL_NUM);
 
 

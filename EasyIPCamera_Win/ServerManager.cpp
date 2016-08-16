@@ -432,7 +432,7 @@ int CServerManager::StartServer(int listenport, char *username, char *password, 
 {
 
 	//EasyIPCamera_Callback callback, void *userptr,
-	int ret = EasyIPCamera_Startup(listenport, (Easy_U8*)username, (Easy_U8*)password, __EasyIPCamera_Callback, this, channelInfo, channelNum);
+	int ret = EasyIPCamera_Startup(listenport, AUTHENTICATION_TYPE_BASIC, (char*)"", (Easy_U8*)username, (Easy_U8*)password, __EasyIPCamera_Callback, this, channelInfo, channelNum);
 
 	return ret;
 }
