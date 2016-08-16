@@ -97,7 +97,7 @@ public class EasyIPCamera {
     public native int shutdown();
 
     /* frame:  具体发送的帧数据 */
-    public native int pushFrame(int channelId, int avFrameFlag, int avFrameLen, int vFrameType, byte[] pBuffer);
+    public native int pushFrame(int channelId, int avFrameFlag, long timestamp, byte[] pBuffer);
 
     public native int resetChannel(int channelId);
 

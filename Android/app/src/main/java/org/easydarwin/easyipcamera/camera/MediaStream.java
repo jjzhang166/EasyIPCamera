@@ -171,6 +171,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         ByteBuffer[] inputBuffers;
         byte[] dst;
         ByteBuffer[] outputBuffers;
+        byte[] mPpsSps = new byte[0];
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
@@ -228,24 +229,19 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
                         //记录pps和sps
                         int type = outData[4] & 0x07;
-                        if (type == 7) {
-                            mSps = outData;
-                        }else if(type == 8) {
-                            mPps = outData;
+                        if (type == 7 || type == 8) {
+                            mPpsSps = outData;
                         }else if (type == 5) {
                             //在关键帧前面加上pps和sps数据
-                            byte[] iframeData = new byte[mSps.length + mPps.length + outData.length];
-                            System.arraycopy(mSps, 0, iframeData, 0, mSps.length);
-                            if(mPps.length > 0) {
-                                System.arraycopy(mPps, 0, iframeData, mSps.length, mPps.length);
-                            }
-                            System.arraycopy(outData, 0, iframeData, mSps.length + mPps.length, outData.length);
+                            byte[] iframeData = new byte[mPpsSps.length + outData.length];
+                            System.arraycopy(mPpsSps, 0, iframeData, 0, mPpsSps.length);
+                            System.arraycopy(outData, 0, iframeData, mPpsSps.length, outData.length);
                             outData = iframeData;
                         }
 
                         if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                            int result = mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, outData.length, 0, outData);
-                            Log.d(TAG, "kim pushFrame result="+result+", frame length="+outData.length+", type="+type);
+                            int result = mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, System.currentTimeMillis(), outData);
+                            //Log.d(TAG, "kim pushFrame result="+result+", frame length="+outData.length+", type="+type);
                         }
                         mMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);

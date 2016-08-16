@@ -160,7 +160,7 @@ public class AudioStream {
 
                         Log.d(TAG, "kim mChannelState="+mChannelState+", mChannelId="+mChannelId+", length="+buffer.length);
                         if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                            mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_AUDIO_FRAME_FLAG, buffer.length, 0, buffer);
+                            mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_AUDIO_FRAME_FLAG, System.currentTimeMillis(), buffer);
                         }
 
                         if (mBuffer.position() >= size) { // read complete
