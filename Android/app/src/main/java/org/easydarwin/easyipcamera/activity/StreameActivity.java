@@ -16,6 +16,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import org.easydarwin.easyipcamera.R;
 import org.easydarwin.easyipcamera.camera.MediaStream;
 import org.easydarwin.easyipcamera.util.Util;
+import org.easydarwin.easyipcamera.view.StatusInfoView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     Spinner spnResolution;
     List<String> listResolution;
     MediaStream mMediaStream;
-    TextView txtStatus;
+    private StatusInfoView mDbgInfoPrint;
     private boolean mIsStarted = false;
 
     @Override
@@ -55,7 +57,9 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         setContentView(R.layout.activity_main);
         spnResolution = (Spinner) findViewById(R.id.spn_resolution);
 
-        txtStatus = (TextView) findViewById(R.id.txt_stream_status);
+        mDbgInfoPrint = (StatusInfoView) findViewById(R.id.dbg_status_info);
+        initDbgInfoView();
+
         btnSwitch = (Button) findViewById(R.id.btn_switch);
         btnSwitch.setOnClickListener(this);
         btnSetting = (Button) findViewById(R.id.btn_setting);
@@ -87,29 +91,16 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         mIsStarted = false;
     }
 
-    private static final String STATE = "state";
-    private static final int MSG_STATE = 1;
-
-    private void sendMessage(String message) {
-        Message msg = Message.obtain();
-        msg.what = MSG_STATE;
-        Bundle bundle = new Bundle();
-        bundle.putString(STATE, message);
-        msg.setData(bundle);
-        handler.sendMessage(msg);
+    private void initDbgInfoView(){
+        if(mDbgInfoPrint == null)
+            return;
+        ViewGroup.LayoutParams lp = mDbgInfoPrint.getLayoutParams();
+        lp.height = getResources().getDisplayMetrics().heightPixels/4;
+        mDbgInfoPrint.setLayoutParams(lp);
+        mDbgInfoPrint.requestLayout();
+        mDbgInfoPrint.setInstence(mDbgInfoPrint);
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_STATE:
-                    String state = msg.getData().getString("state");
-                    txtStatus.setText(state);
-                    break;
-            }
-        }
-    };
 
     private void initSpninner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spn_item, listResolution);
@@ -188,6 +179,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                     txtStreamAddress.setText(String.format("rtsp://%s:%s/%s", ip, port, id));
                     mIsStarted = true;
                 } else {
+                    StatusInfoView.getInstence().clearMsg();
                     txtStreamAddress.setVisibility(View.INVISIBLE);
                     mMediaStream.stopStream();
                     btnSwitch.setText("开始");
@@ -214,7 +206,6 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacksAndMessages(null);
         mMediaStream.destroyStream();
     }
 }

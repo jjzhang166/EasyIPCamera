@@ -21,6 +21,7 @@ import org.easydarwin.easyipcamera.activity.EasyApplication;
 import org.easydarwin.easyipcamera.hw.EncoderDebugger;
 import org.easydarwin.easyipcamera.hw.NV21Convertor;
 import org.easydarwin.easyipcamera.util.Util;
+import org.easydarwin.easyipcamera.view.StatusInfoView;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,7 +47,6 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     SurfaceHolder mSurfaceHolder;
     Camera mCamera;
     NV21Convertor mConvertor;
-    //int pushStream = 0;//是否要推送数据   0: 停止状态   1: 开始状态   2:有client请求流
     private int mChannelState = 0;
     AudioStream audioStream;
     private boolean isCameraBack = true;
@@ -139,6 +139,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             String stack = sw.toString();
             destroyCamera();
             e.printStackTrace();
+            StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "Create camera failed!"));
             return false;
         }
     }
@@ -154,6 +155,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             } catch (Exception e) {
                 //忽略异常
                 Log.i(TAG, "auto foucus fail");
+                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "Camera auto foucus failed!"));
             }
 
             int previewFormat = mCamera.getParameters().getPreviewFormat();
@@ -366,6 +368,8 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             mMediaCodec.start();
             codecAvailable = true;
         } catch (IOException e) {
+            String info = String.format("start MediaCodec failed!");
+            StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", info));
             e.printStackTrace();
         }
     }
@@ -399,6 +403,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         Log.d(TAG, "kim startup result="+result);
 
         initMediaCodec();
+
+        String info = String.format("EasyIPCamera started");
+        StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", info));
     }
 
     public void stopStream() {
@@ -439,25 +446,12 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         switch(channelState){
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_ERROR:
                 Log.d(TAG, "kim EASY_IPCAMERA_STATE_ERROR");
+                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "EASY_IPCAMERA_STATE_ERROR"));
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO:
 //                /* 媒体信息 */
-//                Easy_U32 u32VideoCodec;				/* 视频编码类型 */
-//                Easy_U32 u32VideoFps;				/* 视频帧率 */
-//
-//                Easy_U32 u32AudioCodec;				/* 音频编码类型 */
-//                Easy_U32 u32AudioSamplerate;		/* 音频采样率 */
-//                Easy_U32 u32AudioChannel;			/* 音频通道数 */
-//                Easy_U32 u32AudioBitsPerSample;		/* 音频采样精度 */
-//
-//                Easy_U32 u32VpsLength;			/* 视频vps帧长度 */
-//                Easy_U32 u32SpsLength;			/* 视频sps帧长度 */
-//                Easy_U32 u32PpsLength;			/* 视频pps帧长度 */
-//                Easy_U32 u32SeiLength;			/* 视频sei帧长度 */
-//                Easy_U8	 u8Vps[128];			/* 视频vps帧内容 */
-//                Easy_U8	 u8Sps[128];			/* 视频sps帧内容 */
-//                Easy_U8	 u8Pps[36];				/* 视频sps帧内容 */
-//                Easy_U8	 u8Sei[36];				/* 视频sei帧内容 */
+                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO"));
+
                 ByteBuffer buffer = ByteBuffer.wrap(mediaInfo);
                 Log.d(TAG,"kim buffer capacity="+ buffer.capacity());
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -483,11 +477,13 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 buffer.put(mMei);
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM:
+                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM"));
                 startMediaCodec();
                 //TODO:音频目前有问题，暂时只推视频数据
                 //audioStream.startRecord();
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM:
+                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM"));
                 stopMediaCodec();
                 //TODO:音频目前有问题，暂时只推视频数据
                 //audioStream.stop();
