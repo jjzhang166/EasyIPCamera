@@ -60,12 +60,8 @@ public class EasyApplication extends Application {
     public String getId() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String id = sharedPreferences.getString(Config.STREAM_ID, Config.DEFAULT_STREAM_ID);
-        if (!id.contains(Config.STREAM_ID_PREFIX)) {
-            id = Config.STREAM_ID_PREFIX + id;
-        }
+
         saveStringIntoPref(Config.STREAM_ID, id);
         return id;
     }
-
-
 }
