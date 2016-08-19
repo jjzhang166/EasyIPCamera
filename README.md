@@ -26,8 +26,10 @@ EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持�
 	<tr><td>Windows</td><td>x64</td><td>./Lib/x64/</td></tr>
 	<tr><td>Linux</td><td>x86</td><td>./Lib/</td></tr>
 	<tr><td>Linux</td><td>x64</td><td>./Lib/x64/</td></tr>
+	<tr><td>Android</td><td>Android</td><td>./Android/</td></tr>
 	<tr><td>海思</td><td>arm-hisiv100-linux</td><td>./Lib/hisiv100/</td></tr>
 	<tr><td>海思</td><td>arm-hisiv200-linux</td><td>./Lib/hisiv200/</td></tr>
+	<tr><td>海思</td><td>arm-hisiv300-linux</td><td>./Lib/hisiv300/</td></tr>
 	<tr><td>海思</td><td>arm-hisiv400-linux</td><td>./Lib/hisiv400/</td></tr>
 	<tr><td colspan="3"><center>邮件获取更多平台版本</center></td></tr>
 	</table>
