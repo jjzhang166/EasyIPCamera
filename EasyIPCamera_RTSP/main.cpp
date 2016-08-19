@@ -160,7 +160,7 @@ Easy_I32 __EasyIPCamera_Callback(Easy_I32 channelId, EASY_IPCAMERA_STATE_T chann
 
 			EasyRTSP_Init(&pChannel[channelId].rtspHandle);
 			EasyRTSP_SetCallback(pChannel[channelId].rtspHandle, __RTSPSourceCallBack);
-			EasyRTSP_OpenStream(pChannel[channelId].rtspHandle, channelId, pChannel[channelId].source_uri, RTP_OVER_TCP, 1, pChannel[channelId].username, pChannel[channelId].password, (void *)&pChannel[channelId], 1000, 0, 0, 0);
+			EasyRTSP_OpenStream(pChannel[channelId].rtspHandle, channelId, pChannel[channelId].source_uri, RTP_OVER_TCP, 1, pChannel[channelId].username, pChannel[channelId].password, (void *)&pChannel[channelId], 1000, 0, 0, 1);
 		}
 
 		printf("[channel %d] Get media info...\n", channelId);
@@ -230,16 +230,16 @@ int main()
 		if (i==0)
 		{
 			channel[i].sourceType = SOURCE_TYPE_RTSP;
-			strcpy(channel[i].source_uri, "rtsp://admin:admin@192.168.66.222/33");
+			strcpy(channel[i].source_uri, "rtsp://admin:admin@192.168.66.222/11");
 			strcpy(channel[i].username, "admin");
 			strcpy(channel[i].password, "admin");
 		}
 		else if (i==1)
 		{
 			channel[i].sourceType = SOURCE_TYPE_RTSP;
-			strcpy(channel[i].source_uri, "rtsp://192.168.200.16:8557");
+			strcpy(channel[i].source_uri, "rtsp://admin:admin@192.168.66.222/33");
 			strcpy(channel[i].username, "admin");
-			strcpy(channel[i].password, "12345");
+			strcpy(channel[i].password, "admin");
 		}
 
 		printf("rtsp url: rtsp://ip:%d/%s\n", rtspPort, channel[i].name);
