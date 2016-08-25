@@ -1,4 +1,10 @@
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
+#define CALLBACK
+#define Sleep(x) usleep(x*1000)
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

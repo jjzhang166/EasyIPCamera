@@ -40,3 +40,5 @@ obj/
 *.suo
 *.log
 *.ipch
+/EasyIPCamera_RTSP/build/
+/EasyIPCamera_RTSP/dist/
