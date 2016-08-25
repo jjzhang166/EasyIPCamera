@@ -169,6 +169,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_switch:
+                StatusInfoView.getInstence().clearMsg();
                 if (!mIsStarted) {
                     String ip = Util.getLocalIpAddress();
                     String port = EasyApplication.getEasyApplication().getPort();
@@ -176,11 +177,12 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                     mMediaStream.startStream(ip, port, id);
                     btnSwitch.setText("停止");
                     txtStreamAddress.setVisibility(View.VISIBLE);
+                    StatusInfoView.getInstence().setVisibility(View.VISIBLE);
                     txtStreamAddress.setText(String.format("rtsp://%s:%s/%s", ip, port, id));
                     mIsStarted = true;
                 } else {
-                    StatusInfoView.getInstence().clearMsg();
                     txtStreamAddress.setVisibility(View.INVISIBLE);
+                    StatusInfoView.getInstence().setVisibility(View.INVISIBLE);
                     mMediaStream.stopStream();
                     btnSwitch.setText("开始");
                     mIsStarted = false;

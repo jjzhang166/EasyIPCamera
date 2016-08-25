@@ -410,10 +410,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
     public void stopStream() {
         setChannelState(0);
-
-        //TODO:音频目前有问题，暂时只推视频数据
-        //audioStream.stop();
-
+        audioStream.stop();
         stopMediaCodec();
 
         mEasyIPCamera.resetChannel(mChannelId);
@@ -453,7 +450,6 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO"));
 
                 ByteBuffer buffer = ByteBuffer.wrap(mediaInfo);
-                Log.d(TAG,"kim buffer capacity="+ buffer.capacity());
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 buffer.putInt(EasyIPCamera.VideoCodec.EASY_SDK_VIDEO_CODEC_H264);
                 buffer.putInt(framerate);
@@ -479,14 +475,13 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM:
                 StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM"));
                 startMediaCodec();
-                //TODO:音频目前有问题，暂时只推视频数据
-                //audioStream.startRecord();
+                audioStream.startRecord();
+
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM:
                 StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM"));
                 stopMediaCodec();
-                //TODO:音频目前有问题，暂时只推视频数据
-                //audioStream.stop();
+                audioStream.stop();
                 break;
             default:
                 break;
