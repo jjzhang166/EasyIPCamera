@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import org.easydarwin.easyipcamera.R;
 import org.easydarwin.easyipcamera.camera.MediaStream;
+import org.easydarwin.easyipcamera.updatemgr.UpdateMgr;
 import org.easydarwin.easyipcamera.util.Util;
 import org.easydarwin.easyipcamera.view.StatusInfoView;
 
@@ -89,6 +90,9 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         initSpninner();
 
         mIsStarted = false;
+
+        UpdateMgr update = new UpdateMgr(this);
+        update.checkUpdate();
     }
 
     private void initDbgInfoView(){
