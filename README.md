@@ -2,12 +2,19 @@
 
 EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持多种平台（包括Windows/Linux 32&64，Android，ARM hisiv100/hisiv200/hisiv400等平台）的RTSPServer组件，接口调用非常简单成熟，无需关注RTSPServer中关于客户端监听接入、音视频多路复用、RTSP具体流程、RTP打包与发送等相关问题，支持多种音视频格式，再也不用像调用live555 RTSPServer那样处理整个RTSP OPTIONS/DESCRIBE/SETUP/PLAY/RTP/RTCP的复杂流程和担心内存释放的问题了！
 
+BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试，目前已经可以稳定在4路1080P并发：
+
+ - TCP/UDP 方式分别连接3路下，1080P 4M 定码率，音频格式G711（64K）G726（16K 24K 32K 40K）AAC(64K 96K 128K)都没问题；
+ - TCP/UDP 方式分别连接4路下，1080P 4M 定码率，音频格式G711（64K）G726（16K 24K 32K 40K）AAC(64K 96K 128K)都没问题；
+ - 支持Basic、Digest两种鉴权模式；
+
+
 ## 调用示例 ##
 
 - **EasyIPCamera**：在不同的调用平台上，我们实现了不同的调用示例；
 	1. EasyIPCamera_Win：Windows采集摄像头/屏幕桌面/麦克风的音视频做为数据源的RTSPServer；
 	2. EasyIPCamera_RTSP：以其他IPC硬件（海康、大华、雄迈）提供的RTSP流做为EasyIPCamera的数据源，对外提供RTSPServer功能；
-	3. ARM上我们提供基于海思HI3518E、HI3518C、HI3516C的摄像机芯片编码后的音视频做为数据源的RTSPServer；
+	3. ARM上我们提供基于海思v100/v200/v300/v400以及其他ARM芯片的摄像机芯片编码后的音视频做为数据源的RTSPServer，具体芯片调用demo示例代码请邮件至support@easydarwin.org申请；
 	
 	Windows编译方法，
 
