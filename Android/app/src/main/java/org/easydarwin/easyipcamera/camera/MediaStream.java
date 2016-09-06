@@ -176,7 +176,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         byte[] mPpsSps = new byte[0];
 
         @Override
-        public void onPreviewFrame(byte[] data, Camera camera) {
+        public synchronized void onPreviewFrame(byte[] data, Camera camera) {
             if (data == null || !codecAvailable) {
                 mCamera.addCallbackBuffer(data);
                 return;
@@ -261,6 +261,12 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 e.printStackTrace();
             } finally {
                 mCamera.addCallbackBuffer(dst);
+            }
+
+            if(!codecAvailable){
+                mMediaCodec.stop();
+                mMediaCodec.release();
+                mMediaCodec = null;
             }
         }
 
@@ -380,9 +386,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     private void stopMediaCodec() {
         if (mMediaCodec != null) {
             codecAvailable = false;
-            mMediaCodec.stop();
-            mMediaCodec.release();
-            mMediaCodec = null;
+//            mMediaCodec.stop();
+//            mMediaCodec.release();
+//            mMediaCodec = null;
         }
     }
 

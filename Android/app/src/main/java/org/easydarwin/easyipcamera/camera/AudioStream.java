@@ -119,7 +119,7 @@ public class AudioStream {
     /**
      * 编码
      */
-    private void startEncode() {
+    private synchronized void startEncode() {
         mBuffers = mMediaCodec.getOutputBuffers();
         mBuffer=null;
         encodeThread = new Thread(new Runnable() {
@@ -173,6 +173,10 @@ public class AudioStream {
                         e.printStackTrace(pw);
                         String stack = sw.toString();
                         Log.i(TAG, "record" + stack);
+                    } finally {
+                        if(stoped){
+                            release();
+                        }
                     }
                 }
             }
@@ -181,7 +185,7 @@ public class AudioStream {
     }
 
 
-    public void startRecord() {
+    public synchronized void startRecord() {
         try {
             init();
             mAudioRecord.startRecording();
@@ -233,16 +237,15 @@ public class AudioStream {
         packet[6] = (byte) 0xFC;
     }
 
-    public void stop() {
+    public void release() {
         try {
-
             if (mThread != null) {
                 mThread.interrupt();
             }
             if (encodeThread != null) {
                 encodeThread.interrupt();
             }
-            stoped = true;
+
             if (mAudioRecord != null) {
                 mAudioRecord.stop();
                 mAudioRecord.release();
@@ -256,6 +259,10 @@ public class AudioStream {
         } catch (Exception e) {
             Log.e(TAG, "Stop___Error!!!!!");
         }
+    }
+
+    public void stop() {
+        stoped = true;
     }
 
     public int getAudioEncCodec(){
