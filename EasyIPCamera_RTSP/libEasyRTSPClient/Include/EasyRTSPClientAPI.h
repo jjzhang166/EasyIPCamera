@@ -9,7 +9,7 @@
 
 #include "EasyTypes.h"
 
-#define	RTSP_PROG_NAME	"EasyRTSPClient v1.16.0721"
+#define	RTSP_PROG_NAME	"EasyRTSPClient v1.2.16.1105"
 
 /*
 	_channelId:		通道号,暂时不用
@@ -25,7 +25,7 @@ extern "C"
 {
 #endif
 	/* 获取最后一次错误的错误码 */
-	Easy_API int Easy_APICALL EasyRTSP_GetErrCode();
+	Easy_API int Easy_APICALL EasyRTSP_GetErrCode(Easy_RTSP_Handle handle);
 
 	/* 激活 */
 	Easy_API int Easy_APICALL EasyRTSP_Activate(char *license);
