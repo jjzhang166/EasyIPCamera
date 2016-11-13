@@ -26,7 +26,8 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 		chmod +x ./Buildit
 		./Buildit
 
-- **我们同时提供Windows、Linux、ARM版本的EasyIPCamera SDK**：可通过邮件发送至[support@easydarwin.org](mailto:support@easydarwin.org "EasyDarwin support mail")进行申请，注意ARM版本需要附上交叉编译工具链，我们会帮您具体编译，目前Github已经更新支持的平台有：
+- **我们同时提供Windows、Linux、ARM、Android、IOS版本的EasyIPCamera库**：EasyIPCamera SDK商业使用需要经过授权才能永久使用，商业授权方案细节： [http://www.easydss.com/EasyIPCamera.html](http://www.easydss.com/EasyIPCamera.html "EasyIPCamera授权")；个人及非商业用途可通过[https://github.com/EasyDarwin/Tools](https://github.com/EasyDarwin/Tools "EasyDarwin Tools")中的**EasyDarwin SDK License生成工具**生成临时License使用，或者可以邮件发送至[support@easydarwin.org](mailto:support@easydarwin.org "EasyDarwin support mail")进行更深入的合作咨询，注意ARM版本需要附上交叉编译工具链，我们会帮您具体编译；
+
 
 	<table>
 	<tr><td><b>支持平台</b></td><td><b>芯片</b></td><td><b>目录位置</b></td></tr>
