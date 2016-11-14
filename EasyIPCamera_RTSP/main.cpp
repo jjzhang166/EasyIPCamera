@@ -255,7 +255,7 @@ int main()
 	int activate_ret = EasyRTSP_Activate("6A59754D6A3469576B5A754134703958714741634575704659584E35535642445957316C636D4666556C52545543356C65475658444661672F704C67523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D");
 	if (activate_ret < 0)
 	{
-		printf("¼¤»îÊ§°Ü: %d\n", activate_ret);
+		printf("¼¤»îlibEasyRTSPClientÊ§°Ü: %d\n", activate_ret);
 	}
 
 	LIVE_CHANNEL_INFO_T	liveChannel[MAX_CHANNEL_NUM];
@@ -264,6 +264,12 @@ int main()
 	{
 		liveChannel[i].id = channel[i].id;
 		strcpy(liveChannel[i].name, channel[i].name);
+	}
+
+	activate_ret = EasyIPCamera_Activate("6D7061506E4969576B5A734132786459702B676A6B75704659584E35535642445957316C636D4666556C52545543356C65475658444661672F704C67523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D");
+	if (activate_ret < 0)
+	{
+		printf("¼¤»îlibEasyIPCameraÊ§°Ü: %d\n", activate_ret);
 	}
 
 	EasyIPCamera_Startup(rtspPort, AUTHENTICATION_TYPE_BASIC,"", (unsigned char*)"", (unsigned char*)"", __EasyIPCamera_Callback, (void *)&channel[0], &liveChannel[0], MAX_CHANNEL_NUM);
