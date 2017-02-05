@@ -1,6 +1,6 @@
 # EasyIPCamera #
 
-EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持多种平台（包括Windows/Linux 32&64，Android，ARM hisiv100/hisiv200/hisiv400等平台）的RTSPServer组件，接口调用非常简单成熟，无需关注RTSPServer中关于客户端监听接入、音视频多路复用、RTSP具体流程、RTP打包与发送等相关问题，支持多种音视频格式，再也不用像调用live555 RTSPServer那样处理整个RTSP OPTIONS/DESCRIBE/SETUP/PLAY/RTP/RTCP的复杂流程和担心内存释放的问题了！
+EasyIPCamera是由EasyDarwin团队开发的一套非常稳定、易用、支持多种平台（包括Windows/Linux 32&64，Android，ARM hisiv100/hisiv200/hisiv400等平台）的RTSP Server组件，适用于IPCamera、内网RTSP服务等小型RTSP流媒体服务器，接口调用非常简单成熟，无需关注RTSPServer中关于客户端监听接入、音视频多路复用、RTSP具体流程、RTP打包与发送等相关问题，支持多种音视频格式，再也不用像调用live555 RTSPServer那样处理整个RTSP OPTIONS/DESCRIBE/SETUP/PLAY/RTP/RTCP的复杂流程和担心内存释放的问题了！
 
 BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试，目前已经可以稳定在4路1080P并发：
 
@@ -26,7 +26,7 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 		chmod +x ./Buildit
 		./Buildit
 
-- **我们同时提供Windows、Linux、ARM、Android、IOS版本的EasyIPCamera库**：EasyIPCamera SDK商业使用需要经过授权才能永久使用，商业授权方案细节： [http://www.easydss.com/EasyIPCamera.html](http://www.easydss.com/EasyIPCamera.html "EasyIPCamera授权")；个人及非商业用途可通过[https://github.com/EasyDarwin/Tools](https://github.com/EasyDarwin/Tools "EasyDarwin Tools")中的**EasyDarwin SDK License生成工具**生成临时License使用，或者可以邮件发送至[support@easydarwin.org](mailto:support@easydarwin.org "EasyDarwin support mail")进行更深入的合作咨询，注意ARM版本需要附上交叉编译工具链，我们会帮您具体编译；
+- **我们同时提供Windows、Linux、ARM、Android、IOS版本的EasyIPCamera库**：EasyIPCamera SDK商业使用需要经过授权才能永久使用，商业授权方案可以邮件发送至[support@easydarwin.org](mailto:support@easydarwin.org "EasyDarwin support mail")或者通过电话Tel：**13718530929** 进行更深入的技术与合作咨询；
 
 
 	<table>
@@ -80,6 +80,6 @@ EASY\_SDK\_AUDIO\_FRAME\_FLAG数据可支持多种音频格式：
 
 WEB：[www.EasyDarwin.org](http://www.easydarwin.org)
 
-Copyright &copy; EasyDarwin.org 2012-2016
+Copyright &copy; EasyDarwin.org 2012-2017
 
 ![EasyDarwin](http://www.easydarwin.org/skin/easydarwin/images/wx_qrcode.jpg)
