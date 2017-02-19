@@ -11,6 +11,11 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".activity.EasyApplication"
         android:allowBackup="true"
@@ -37,7 +42,11 @@
             android:name=".activity.StreameActivity"
             android:screenOrientation="portrait" />
 
-        <receiver android:name="org.easydarwin.easyipcamera.updatemgr.CompleteReceiver" >
+        <service
+            android:name=".activity.RecordService"
+            android:enabled="true" />
+
+        <receiver android:name=".updatemgr.CompleteReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />

@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -8,15 +8,19 @@
 package org.easydarwin.easyipcamera.activity;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.easydarwin.easyipcamera.R;
+import org.easydarwin.easyipcamera.camera.MediaStream;
 import org.easydarwin.easyipcamera.config.Config;
 import org.easydarwin.easyipcamera.util.Util;
 
@@ -37,6 +41,15 @@ public class SettingActivity extends AppCompatActivity {
         txtIp.setText("本地IP : "+ip);
         txtPort.setText(port);
         txtId.setText(id);
+
+        CheckBox x264enc = (CheckBox) findViewById(R.id.use_x264_encode);
+        x264enc.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("key-sw-codec", MediaStream.useSWCodec()));
+        x264enc.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit().putBoolean("key-sw-codec", isChecked).apply();
+            }
+        });
 
         Button btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {

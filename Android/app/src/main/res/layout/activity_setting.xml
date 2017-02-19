@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context="org.easydarwin.easyipcamera.activity.SettingActivity">
+    tools:context=".activity.SettingActivity">
 
 
     <TextView
@@ -19,8 +19,8 @@
         android:id="@+id/edt_server_port"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="EasyDarwin端口（默认554）"
-        android:text="554"
+        android:hint="EasyDarwin端口（默认8554）"
+        android:text="8554"
         android:textColorHint="#80000000" />
 
     <EditText
@@ -29,6 +29,15 @@
         android:layout_height="wrap_content"
         android:hint="直播流ID"
         android:textColorHint="#80000000" />
+
+    <CheckBox
+        android:id="@+id/use_x264_encode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:text="使用软编码" />
 
     <Button
         android:id="@+id/btn_save"

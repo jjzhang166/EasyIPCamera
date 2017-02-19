@@ -1,10 +1,14 @@
 package org.easydarwin.easyipcamera.view;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +28,12 @@ public class StatusInfoView extends View {
     public StatusInfoView(Context context) {
         super(context);
         mContext = context;
-        mInfoList = new ArrayList<StatusInfo>();
-        mInfoList.clear();
+        init();
     }
     public StatusInfoView(Context context, AttributeSet attr) {
         super(context,attr);
         mContext = context;
-        mInfoList = new ArrayList<StatusInfo>();
-        mInfoList.clear();
+        init();
     }
 
     public static StatusInfoView getInstence(){
@@ -41,6 +43,18 @@ public class StatusInfoView extends View {
     public void setInstence(StatusInfoView instence){
         mInstence = instence;
         handler.postDelayed(runnable, 1000);
+    }
+
+    private void init(){
+        mInfoList = new ArrayList<StatusInfo>();
+        mInfoList.clear();
+
+        final IntentFilter inf = new IntentFilter(DBG_MSG);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiver, inf);
+    }
+
+    public void uninit(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiver);
     }
 
     public void addInfoMsg(StatusInfo info){
@@ -85,6 +99,29 @@ public class StatusInfoView extends View {
             posY -= 35;
         }
     }
+
+    //BroadCast
+    public static final String DBG_MSG = "dbg-msg";
+    public static final String DBG_LEVEL = "dbg-level";
+    public static final String DBG_DATA = "dbg-datas";
+    public static class DbgLevel {
+        public static final String DBG_LEVEL_INFO = "Info";
+        public static final String DBG_LEVEL_WARN = "Warn";
+    }
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (DBG_MSG.equals(intent.getAction())) {
+                final String msg = intent.getStringExtra(DBG_DATA);
+                final String level = intent.getStringExtra(DBG_LEVEL);
+                if(!level.isEmpty() && !msg.isEmpty()) {
+                    StatusInfo info = new StatusInfo(level, msg);
+                    addInfoMsg(info);
+                }
+            }
+        }
+    };
+
 
     public static class StatusInfo{
         String level;

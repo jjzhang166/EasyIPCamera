@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -30,7 +30,7 @@ public class EasyApplication extends Application {
         mApplication = this;
         if (Util.getSupportResolution(this).size() == 0) {
             StringBuilder stringBuilder = new StringBuilder();
-            Camera camera = Camera.open();
+            Camera camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
             List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
             for (Camera.Size str : supportedPreviewSizes) {
                 stringBuilder.append(str.width + "x" + str.height).append(";");

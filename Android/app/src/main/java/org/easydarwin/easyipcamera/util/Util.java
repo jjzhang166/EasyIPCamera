@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2013-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2013-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -8,10 +8,18 @@
 package org.easydarwin.easyipcamera.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 
+import org.easydarwin.easyipcamera.activity.EasyApplication;
 import org.easydarwin.easyipcamera.config.Config;
+import org.easydarwin.easyipcamera.sw.JNIUtil;
+import org.easydarwin.easyipcamera.view.StatusInfoView;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -153,6 +161,30 @@ public class Util {
     }
 
     /**
+     * 旋转YUV格式数据
+     *
+     * @param src    YUV数据
+     * @param format 0，420P；1，420SP
+     * @param width  宽度
+     * @param height 高度
+     * @param degree 旋转度数
+     */
+    public static void yuvRotate(byte[] src, int format, int width, int height, int degree) {
+        int offset = 0;
+        if (format == 0) {
+            JNIUtil.rotateMatrix(src, offset, width, height, degree);
+            offset += (width * height);
+            JNIUtil.rotateMatrix(src, offset, width / 2, height / 2, degree);
+            offset += width * height / 4;
+            JNIUtil.rotateMatrix(src, offset, width / 2, height / 2, degree);
+        } else if (format == 1) {
+            JNIUtil.rotateMatrix(src, offset, width, height, degree);
+            offset += width * height;
+            JNIUtil.rotateShortMatrix(src, offset, width / 2, height / 2, degree);
+        }
+    }
+
+    /**
      * 保存数据到本地
      *
      * @param buffer 要保存的数据
@@ -211,24 +243,50 @@ public class Util {
         sharedPreferences.edit().putString(Config.K_RESOLUTION, value).commit();
     }
 
+    private static String intToIp(int i) {
+        return (i & 0xFF ) + "." +
+                ((i >> 8 ) & 0xFF) + "." +
+                ((i >> 16 ) & 0xFF) + "." +
+                ( i >> 24 & 0xFF) ;
+    }
+
     /**
      * 获取IP地址
      */
     public static String getLocalIpAddress() {
-        String localIP = "";
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) {
-                        localIP = inetAddress.getHostAddress().toString();
+        //获取wifi服务
+        WifiManager wifiManager = (WifiManager) EasyApplication.getEasyApplication().getSystemService(Context.WIFI_SERVICE);
+        //判断wifi是否开启
+        if (wifiManager.isWifiEnabled()) {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            int ipAddress = wifiInfo.getIpAddress();
+            String ip = intToIp(ipAddress);
+            return ip;
+        } else {
+            try {
+                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                    NetworkInterface intf = en.nextElement();
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress()) {
+                            return inetAddress.getHostAddress().toString();
+                        }
                     }
                 }
+            } catch (SocketException ex) {
+                Log.e("getLocalIpAddress", ex.toString());
             }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
+            return null;
         }
-        return localIP;
+    }
+
+    /**
+     * 显示视频debug信息
+     */
+    public static void showDbgMsg(String level, String data){
+        Intent intent = new Intent(StatusInfoView.DBG_MSG);
+        intent.putExtra(StatusInfoView.DBG_LEVEL, level);
+        intent.putExtra(StatusInfoView.DBG_DATA, data);
+        LocalBroadcastManager.getInstance(EasyApplication.getEasyApplication()).sendBroadcast(intent);
     }
 }

@@ -62,96 +62,96 @@ typedef int Easy_Error;
 
 typedef enum __EASY_ACTIVATE_ERR_CODE_ENUM
 {
-	EASY_ACTIVATE_INVALID_KEY		=		-1,			//无效Key
-	EASY_ACTIVATE_TIME_ERR			=		-2,			//时间错误
-	EASY_ACTIVATE_PROCESS_NAME_LEN_ERR	=	-3,			//进程名称长度不匹配
-	EASY_ACTIVATE_PROCESS_NAME_ERR	=		-4,			//进程名称不匹配
-	EASY_ACTIVATE_VALIDITY_PERIOD_ERR=		-5,			//有效期校验不一致
-	EASY_ACTIVATE_PLATFORM_ERR		=		-6,			//平台不匹配
-	EASY_ACTIVATE_COMPANY_ID_LEN_ERR=		-7,			//授权使用商不匹配
-	EASY_ACTIVATE_SUCCESS			=		0,			//激活成功
+	EASY_ACTIVATE_INVALID_KEY		=		-1,			//脦脼脨搂Key
+	EASY_ACTIVATE_TIME_ERR			=		-2,			//脢卤录盲麓铆脦贸
+	EASY_ACTIVATE_PROCESS_NAME_LEN_ERR	=	-3,			//陆酶鲁脤脙没鲁脝鲁陇露脠虏禄脝楼脜盲
+	EASY_ACTIVATE_PROCESS_NAME_ERR	=		-4,			//陆酶鲁脤脙没鲁脝虏禄脝楼脜盲
+	EASY_ACTIVATE_VALIDITY_PERIOD_ERR=		-5,			//脫脨脨搂脝脷脨拢脩茅虏禄脪禄脰脗
+	EASY_ACTIVATE_PLATFORM_ERR		=		-6,			//脝陆脤篓虏禄脝楼脜盲
+	EASY_ACTIVATE_COMPANY_ID_LEN_ERR=		-7,			//脢脷脠篓脢鹿脫脙脡脤虏禄脝楼脜盲
+	EASY_ACTIVATE_SUCCESS			=		0,			//录陇禄卯鲁脡鹿娄
 
 }EASY_ACTIVATE_ERR_CODE_ENUM;
 
 
-/* 视频编码 */
+/* 脢脫脝碌卤脿脗毛 */
 #define EASY_SDK_VIDEO_CODEC_H264	0x1C		/* H264  */
 #define EASY_SDK_VIDEO_CODEC_H265	0x48323635	/* 1211250229 */
 #define	EASY_SDK_VIDEO_CODEC_MJPEG	0x08		/* MJPEG */
 #define	EASY_SDK_VIDEO_CODEC_MPEG4	0x0D		/* MPEG4 */
 
-/* 音频编码 */
+/* 脪么脝碌卤脿脗毛 */
 #define EASY_SDK_AUDIO_CODEC_AAC	0x15002		/* AAC */
 #define EASY_SDK_AUDIO_CODEC_G711U	0x10006		/* G711 ulaw*/
 #define EASY_SDK_AUDIO_CODEC_G711A	0x10007		/* G711 alaw*/
 #define EASY_SDK_AUDIO_CODEC_G726	0x1100B		/* G726 */
 
 
-/* 音视频帧标识 */
-#define EASY_SDK_VIDEO_FRAME_FLAG	0x00000001		/* 视频帧标志 */
-#define EASY_SDK_AUDIO_FRAME_FLAG	0x00000002		/* 音频帧标志 */
-#define EASY_SDK_EVENT_FRAME_FLAG	0x00000004		/* 事件帧标志 */
-#define EASY_SDK_RTP_FRAME_FLAG		0x00000008		/* RTP帧标志 */
-#define EASY_SDK_SDP_FRAME_FLAG		0x00000010		/* SDP帧标志 */
-#define EASY_SDK_MEDIA_INFO_FLAG	0x00000020		/* 媒体类型标志*/
+/* 脪么脢脫脝碌脰隆卤锚脢露 */
+#define EASY_SDK_VIDEO_FRAME_FLAG	0x00000001		/* 脢脫脝碌脰隆卤锚脰戮 */
+#define EASY_SDK_AUDIO_FRAME_FLAG	0x00000002		/* 脪么脝碌脰隆卤锚脰戮 */
+#define EASY_SDK_EVENT_FRAME_FLAG	0x00000004		/* 脢脗录镁脰隆卤锚脰戮 */
+#define EASY_SDK_RTP_FRAME_FLAG		0x00000008		/* RTP脰隆卤锚脰戮 */
+#define EASY_SDK_SDP_FRAME_FLAG		0x00000010		/* SDP脰隆卤锚脰戮 */
+#define EASY_SDK_MEDIA_INFO_FLAG	0x00000020		/* 脙陆脤氓脌脿脨脥卤锚脰戮*/
 
-/* 视频关键字标识 */
-#define EASY_SDK_VIDEO_FRAME_I		0x01		/* I帧 */
-#define EASY_SDK_VIDEO_FRAME_P		0x02		/* P帧 */
-#define EASY_SDK_VIDEO_FRAME_B		0x03		/* B帧 */
+/* 脢脫脝碌鹿脴录眉脳脰卤锚脢露 */
+#define EASY_SDK_VIDEO_FRAME_I		0x01		/* I脰隆 */
+#define EASY_SDK_VIDEO_FRAME_P		0x02		/* P脰隆 */
+#define EASY_SDK_VIDEO_FRAME_B		0x03		/* B脰隆 */
 #define EASY_SDK_VIDEO_FRAME_J		0x04		/* JPEG */
 
-/* 连接类型 */
-typedef enum __RTP_CONNECT_TYPE
+/* 杩炴帴绫诲瀷 */
+typedef enum __EASY_RTP_CONNECT_TYPE
 {
-	RTP_OVER_TCP	=	0x01,		/* RTP Over TCP */
-	RTP_OVER_UDP					/* RTP Over UDP */
-}RTP_CONNECT_TYPE;
+	EASY_RTP_OVER_TCP	=	0x01,		/* RTP Over TCP */
+	EASY_RTP_OVER_UDP					/* RTP Over UDP */
+}EASY_RTP_CONNECT_TYPE;
 
-/* 媒体信息 */
+/* 脙陆脤氓脨脜脧垄 */
 typedef struct __EASY_MEDIA_INFO_T
 {
-	Easy_U32 u32VideoCodec;				/* 视频编码类型 */
-	Easy_U32 u32VideoFps;				/* 视频帧率 */
+	Easy_U32 u32VideoCodec;				/* 脢脫脝碌卤脿脗毛脌脿脨脥 */
+	Easy_U32 u32VideoFps;				/* 脢脫脝碌脰隆脗脢 */
 
-	Easy_U32 u32AudioCodec;				/* 音频编码类型 */
-	Easy_U32 u32AudioSamplerate;		/* 音频采样率 */
-	Easy_U32 u32AudioChannel;			/* 音频通道数 */
-	Easy_U32 u32AudioBitsPerSample;		/* 音频采样精度 */
+	Easy_U32 u32AudioCodec;				/* 脪么脝碌卤脿脗毛脌脿脨脥 */
+	Easy_U32 u32AudioSamplerate;		/* 脪么脝碌虏脡脩霉脗脢 */
+	Easy_U32 u32AudioChannel;			/* 脪么脝碌脥篓碌脌脢媒 */
+	Easy_U32 u32AudioBitsPerSample;		/* 脪么脝碌虏脡脩霉戮芦露脠 */
 
-	Easy_U32 u32VpsLength;			/* 视频vps帧长度 */
-	Easy_U32 u32SpsLength;			/* 视频sps帧长度 */
-	Easy_U32 u32PpsLength;			/* 视频pps帧长度 */
-	Easy_U32 u32SeiLength;			/* 视频sei帧长度 */
-	Easy_U8	 u8Vps[128];			/* 视频vps帧内容 */
-	Easy_U8	 u8Sps[128];			/* 视频sps帧内容 */
-	Easy_U8	 u8Pps[36];				/* 视频sps帧内容 */
-	Easy_U8	 u8Sei[36];				/* 视频sei帧内容 */
+	Easy_U32 u32VpsLength;			/* 脢脫脝碌vps脰隆鲁陇露脠 */
+	Easy_U32 u32SpsLength;			/* 脢脫脝碌sps脰隆鲁陇露脠 */
+	Easy_U32 u32PpsLength;			/* 脢脫脝碌pps脰隆鲁陇露脠 */
+	Easy_U32 u32SeiLength;			/* 脢脫脝碌sei脰隆鲁陇露脠 */
+	Easy_U8	 u8Vps[255];			/* 脢脫脝碌vps脰隆脛脷脠脻 */
+	Easy_U8	 u8Sps[255];			/* 脢脫脝碌sps脰隆脛脷脠脻 */
+	Easy_U8	 u8Pps[128];				/* 脢脫脝碌sps脰隆脛脷脠脻 */
+	Easy_U8	 u8Sei[128];				/* 脢脫脝碌sei脰隆脛脷脠脻 */
 }EASY_MEDIA_INFO_T;
 
-/* 帧信息 */
+/* 脰隆脨脜脧垄 */
 typedef struct 
 {
-	unsigned int	codec;				/* 音视频格式 */
+	unsigned int	codec;				/* 脪么脢脫脝碌赂帽脢陆 */
 
-	unsigned int	type;				/* 视频帧类型 */
-	unsigned char	fps;				/* 视频帧率 */
-	unsigned short	width;				/* 视频宽 */
-	unsigned short  height;				/* 视频高 */
+	unsigned int	type;				/* 脢脫脝碌脰隆脌脿脨脥 */
+	unsigned char	fps;				/* 脢脫脝碌脰隆脗脢 */
+	unsigned short	width;				/* 脢脫脝碌驴铆 */
+	unsigned short  height;				/* 脢脫脝碌赂脽 */
 
-	unsigned int	reserved1;			/* 保留参数1 */
-	unsigned int	reserved2;			/* 保留参数2 */
+	unsigned int	reserved1;			/* 卤拢脕么虏脦脢媒1 */
+	unsigned int	reserved2;			/* 卤拢脕么虏脦脢媒2 */
 
-	unsigned int	sample_rate;		/* 音频采样率 */
-	unsigned int	channels;			/* 音频声道数 */
-	unsigned int	bits_per_sample;	/* 音频采样精度 */
+	unsigned int	sample_rate;		/* 脪么脝碌虏脡脩霉脗脢 */
+	unsigned int	channels;			/* 脪么脝碌脡霉碌脌脢媒 */
+	unsigned int	bits_per_sample;	/* 脪么脝碌虏脡脩霉戮芦露脠 */
 
-	unsigned int	length;				/* 音视频帧大小 */
-	unsigned int    timestamp_usec;		/* 时间戳,微妙 */
-	unsigned int	timestamp_sec;		/* 时间戳 秒 */
+	unsigned int	length;				/* 脪么脢脫脝碌脰隆麓贸脨隆 */
+	unsigned int    timestamp_usec;		/* 脢卤录盲麓脕,脦垄脙卯 */
+	unsigned int	timestamp_sec;		/* 脢卤录盲麓脕 脙毛 */
 	
-	float			bitrate;			/* 比特率 */
-	float			losspacket;			/* 丢包率 */
+	float			bitrate;			/* 卤脠脤脴脗脢 */
+	float			losspacket;			/* 露陋掳眉脗脢 */
 }RTSP_FRAME_INFO;
 
 #endif

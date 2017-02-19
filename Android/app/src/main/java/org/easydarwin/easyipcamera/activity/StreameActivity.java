@@ -1,15 +1,18 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
 */
 package org.easydarwin.easyipcamera.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Surface;
@@ -25,6 +28,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.easydarwin.easyipcamera.R;
+import org.easydarwin.easyipcamera.camera.EasyIPCamera;
 import org.easydarwin.easyipcamera.camera.MediaStream;
 import org.easydarwin.easyipcamera.updatemgr.UpdateMgr;
 import org.easydarwin.easyipcamera.util.Util;
@@ -37,18 +41,21 @@ import java.util.List;
 public class StreameActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
 
     static final String TAG = "StreameActivity";
+    public static final int REQUEST_MEDIA_PROJECTION = 1002;
 
     //默认分辨率
     int width = 640, height = 480;
     Button btnSwitch;
     Button btnSetting;
+    Button btnPushScreen;
     TextView txtStreamAddress;
     Button btnSwitchCemera;
     Spinner spnResolution;
     List<String> listResolution;
     MediaStream mMediaStream;
     private StatusInfoView mDbgInfoPrint;
-    private boolean mIsStarted = false;
+    static Intent mResultIntent;
+    static int mResultCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,8 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         btnSetting.setOnClickListener(this);
         btnSwitchCemera = (Button) findViewById(R.id.btn_switchCamera);
         btnSwitchCemera.setOnClickListener(this);
+        btnPushScreen = (Button) findViewById(R.id.push_screen);
+        btnPushScreen.setOnClickListener(this);
         txtStreamAddress = (TextView) findViewById(R.id.txt_stream_address);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.sv_surfaceview);
         surfaceView.getHolder().addCallback(this);
@@ -89,7 +98,11 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         mMediaStream.setDgree(getDgree());
         initSpninner();
 
-        mIsStarted = false;
+        if (RecordService.mEasyIPCamera != null){
+            btnPushScreen.setText("停止推送屏幕");
+            TextView viewById = (TextView) findViewById(R.id.txt_stream_address);
+            viewById.setText(getRTSPAddr());
+        }
 
         UpdateMgr update = new UpdateMgr(this);
         update.checkUpdate();
@@ -111,7 +124,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnResolution.setAdapter(adapter);
         int position = listResolution.indexOf(String.format("%dx%d", width, height));
-        spnResolution.setSelection(position);
+        spnResolution.setSelection(position,false);
         spnResolution.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -144,8 +157,10 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         mMediaStream.stopPreview();
-        mMediaStream.stopStream();
         mMediaStream.destroyCamera();
+        if(mMediaStream.isOpen()){
+            mMediaStream.stopChannel();
+        }
     }
 
 
@@ -169,27 +184,40 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
         return degrees;
     }
 
+    private String getRTSPAddr(){
+        String ip = Util.getLocalIpAddress();
+        String port = EasyApplication.getEasyApplication().getPort();
+        String id = EasyApplication.getEasyApplication().getId();
+        return String.format("rtsp://%s:%s/%s", ip, port, id);
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_switch:
                 StatusInfoView.getInstence().clearMsg();
-                if (!mIsStarted) {
+                if (!mMediaStream.isOpen()) {
+                    btnSetting.setEnabled(false);
+                    btnPushScreen.setEnabled(false);
+                    btnSwitchCemera.setEnabled(false);
+
                     String ip = Util.getLocalIpAddress();
                     String port = EasyApplication.getEasyApplication().getPort();
                     String id = EasyApplication.getEasyApplication().getId();
-                    mMediaStream.startStream(ip, port, id);
+                    mMediaStream.startChannel(ip, port, id);
                     btnSwitch.setText("停止");
                     txtStreamAddress.setVisibility(View.VISIBLE);
                     StatusInfoView.getInstence().setVisibility(View.VISIBLE);
-                    txtStreamAddress.setText(String.format("rtsp://%s:%s/%s", ip, port, id));
-                    mIsStarted = true;
+                    txtStreamAddress.setText(String.format(getRTSPAddr()));
                 } else {
                     txtStreamAddress.setVisibility(View.INVISIBLE);
                     StatusInfoView.getInstence().setVisibility(View.INVISIBLE);
-                    mMediaStream.stopStream();
-                    btnSwitch.setText("开始");
-                    mIsStarted = false;
+                    mMediaStream.stopChannel();
+                    btnSwitch.setText("推送摄像头");
+
+                    btnSetting.setEnabled(true);
+                    btnPushScreen.setEnabled(true);
+                    btnSwitchCemera.setEnabled(true);
                 }
                 break;
             case R.id.btn_setting:
@@ -204,14 +232,130 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
             case R.id.btn_switchCamera: {
                 mMediaStream.setDgree(getDgree());
                 mMediaStream.switchCamera();
+                break;
             }
-            break;
+            case R.id.push_screen:
+                if (!mMediaStream.isOpen()) {
+                    spnResolution.setEnabled(true);
+                }
+                //sendMessage("");
+                boolean SWcodec = PreferenceManager.getDefaultSharedPreferences(EasyApplication.getEasyApplication()).getBoolean("key-sw-codec", false);
+                if(SWcodec){
+                    new AlertDialog.Builder(this).setMessage("推送屏幕暂时只支持硬编码，请使用硬件编码。").setTitle("抱歉").show();
+                } else {
+                    onPushScreen();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void startScreenPushIntent() {
+        if (StreameActivity.mResultIntent != null && StreameActivity.mResultCode != 0) {
+            RecordService.mEasyIPCamera = new EasyIPCamera();
+            RecordService.mEasyIPCamera.active(getApplicationContext());
+            Intent intent = new Intent(getApplicationContext(), RecordService.class);
+            startService(intent);
+
+            txtStreamAddress.setVisibility(View.VISIBLE);
+            txtStreamAddress.setText(String.format(getRTSPAddr()));
+
+            btnPushScreen.setText("停止推送屏幕");
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                MediaProjectionManager mMpMngr = (MediaProjectionManager) getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
+                startActivityForResult(mMpMngr.createScreenCaptureIntent(), StreameActivity.REQUEST_MEDIA_PROJECTION);
+
+            }
+        }
+    }
+
+    public void onPushScreen() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            new AlertDialog.Builder(this).setMessage("推送屏幕需要安卓5.0以上,您当前系统版本过低,不支持该功能。").setTitle("抱歉").show();
+            return;
+        }
+
+        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("alert_screen_background_pushing", false)){
+            new AlertDialog.Builder(this).setTitle("提醒").setMessage("屏幕直播将要开始,直播过程中您可以切换到其它屏幕。不过记得直播结束后,再进来停止直播哦!").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    PreferenceManager.getDefaultSharedPreferences(StreameActivity.this).edit().putBoolean("alert_screen_background_pushing", true).apply();
+                    onPushScreen();
+                }
+            }).show();
+            return;
+        }
+
+        if (RecordService.mEasyIPCamera != null) {
+            Intent intent = new Intent(getApplicationContext(), RecordService.class);
+            stopService(intent);
+
+            TextView viewById = (TextView) findViewById(R.id.txt_stream_address);
+            viewById.setText(null);
+            btnPushScreen.setText("推送屏幕");
+            btnSwitch.setEnabled(true);
+            btnSwitchCemera.setEnabled(true);
+            btnSetting.setEnabled(true);
+        }else{
+            btnSwitch.setEnabled(false);
+            btnSwitchCemera.setEnabled(false);
+            btnSetting.setEnabled(false);
+            startScreenPushIntent();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            if (resultCode == RESULT_OK) {
+                Log.e(TAG,"get capture permission success!");
+                mResultCode = resultCode;
+                mResultIntent = data;
+
+                startScreenPushIntent();
+
+            }
         }
     }
 
     @Override
     protected void onDestroy() {
+        mMediaStream.destroyChannel();
+        StatusInfoView.getInstence().uninit();
         super.onDestroy();
-        mMediaStream.destroyStream();
+    }
+
+    @Override
+    protected void onStop() {
+        StatusInfoView.getInstence().uninit();
+        super.onStop();
+    }
+
+    /**
+     * Take care of popping the fragment back stack or finishing the activity
+     * as appropriate.
+     */
+    @Override
+    public void onBackPressed() {
+        boolean isStreaming = mMediaStream != null && mMediaStream.isOpen();
+        if (isStreaming && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("key_enable_background_camera", true)){
+            if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_camera_alert", false)){
+                new AlertDialog.Builder(this).setTitle("提醒").setMessage("您设置了使能摄像头后台采集,因此摄像头将会继续在后台采集并上传视频。记得直播结束后,再回来这里关闭直播。").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        PreferenceManager.getDefaultSharedPreferences(StreameActivity.this).edit().putBoolean("background_camera_alert", true).apply();
+                        StreameActivity.super.onBackPressed();
+                    }
+                }).show();
+                return;
+            }
+            super.onBackPressed();
+        }else{
+            super.onBackPressed();
+        }
     }
 }

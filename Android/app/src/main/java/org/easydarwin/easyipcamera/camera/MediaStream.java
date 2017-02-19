@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -12,6 +12,10 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Process;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -20,20 +24,21 @@ import android.view.SurfaceView;
 import org.easydarwin.easyipcamera.activity.EasyApplication;
 import org.easydarwin.easyipcamera.hw.EncoderDebugger;
 import org.easydarwin.easyipcamera.hw.NV21Convertor;
+import org.easydarwin.easyipcamera.sw.JNIUtil;
+import org.easydarwin.easyipcamera.sw.X264Encoder;
 import org.easydarwin.easyipcamera.util.Util;
 import org.easydarwin.easyipcamera.view.StatusInfoView;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
-/**
- * Created by Kim on 8/8/2016.
- */
 public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
     EasyIPCamera mEasyIPCamera;
@@ -48,24 +53,28 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     Camera mCamera;
     NV21Convertor mConvertor;
     private int mChannelState = 0;
-    AudioStream audioStream;
+//    AudioStream audioStream;
+    private boolean mSWCodec;
+    private X264Encoder x264;
+    private Consumer mConsumer;
     private boolean isCameraBack = true;
     private int mDgree;
     private Context mApplicationContext;
     Thread pushThread;
     boolean codecAvailable = false;
     private int mChannelId = 1;
-    byte[] mVps = new byte[128];
-    byte[] mSps = new byte[128];
-    byte[] mPps = new byte[36];
-    byte[] mMei = new byte[36];
+    boolean mChannelOpen = false;//是否要推送数据
+    byte[] mVps = new byte[255];
+    byte[] mSps = new byte[255];
+    byte[] mPps = new byte[128];
+    byte[] mMei = new byte[128];
 
     public MediaStream(Context context, SurfaceView mSurfaceView) {
         mApplicationContext = context;
         this.mSurfaceView = mSurfaceView;
         mSurfaceHolder = mSurfaceView.getHolder();
         mEasyIPCamera = new EasyIPCamera();
-        audioStream = new AudioStream(mEasyIPCamera);
+//        audioStream = new AudioStream(mEasyIPCamera);
     }
 
     public void setDgree(int dgree) {
@@ -87,11 +96,11 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         if (mCamera == null) return;
         mCamera.stopPreview();//停掉原来摄像头的预览
         mCamera.release();//释放资源
-        stopMediaCodec();
+        stopPush();
         mEasyIPCamera.unrigisterCallback(this);
         mChannelId = mEasyIPCamera.registerCallback(this);
-        audioStream.setChannelId(mChannelId);
-        initMediaCodec();
+//        audioStream.setChannelId(mChannelId);
+        initEncoder();
         createCamera();
         startPreview();
     }
@@ -108,11 +117,13 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         return maxFps;
     }
 
+    public static final boolean useSWCodec() {
+        return Build.VERSION.SDK_INT >= 23;
+    }
 
     public boolean createCamera() {
         try {
             mCamera = Camera.open(mCameraId);
-
             Camera.Parameters parameters = mCamera.getParameters();
             int[] max = determineMaximumSupportedFramerate(parameters);
             Camera.CameraInfo camInfo = new Camera.CameraInfo();
@@ -122,7 +133,8 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 cameraRotationOffset += 180;
             int rotate = (360 + cameraRotationOffset - mDgree) % 360;
             parameters.setRotation(rotate);
-            parameters.setPreviewFormat(ImageFormat.NV21);
+            mSWCodec = PreferenceManager.getDefaultSharedPreferences(mApplicationContext).getBoolean("key-sw-codec", useSWCodec());
+            parameters.setPreviewFormat(mSWCodec ? ImageFormat.YV12 : ImageFormat.NV21);
             List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
             parameters.setPreviewSize(width, height);
             parameters.setPreviewFpsRange(max[0], max[1]);
@@ -139,8 +151,178 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             String stack = sw.toString();
             destroyCamera();
             e.printStackTrace();
-            StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "Create camera failed!"));
+            Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_WARN, "Create camera failed!");
             return false;
+        }
+    }
+
+    Object lock = new byte[0];
+
+    private class TimedBuffer {
+        byte[] buffer;
+        long time;
+
+        public TimedBuffer(byte[] data) {
+            buffer = data;
+            time = System.currentTimeMillis();
+        }
+    }
+
+    private ArrayBlockingQueue<TimedBuffer> yuvs = new ArrayBlockingQueue<TimedBuffer>(5);
+    private ArrayBlockingQueue<byte[]> yuv_caches = new ArrayBlockingQueue<byte[]>(10);
+
+    class Consumer extends Thread {
+        ByteBuffer[] inputBuffers;
+        ByteBuffer[] outputBuffers;
+        byte[] mPpsSps = new byte[0];
+        int keyFrmHelperCount = 0;
+        private long timeStamp = System.currentTimeMillis();
+
+        public Consumer() {
+            super("Consumer");
+        }
+
+        @Override
+        public void run() {
+            Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
+            Camera.Size previewSize = mCamera.getParameters().getPreviewSize();
+            byte[] h264 = new byte[(int) (previewSize.width * previewSize.height * 3/2)];
+            try {
+                if(mSWCodec){
+                    initSWEncoder();
+                } else {
+                    startMediaCodec();
+                }
+
+                while (mConsumer != null && codecAvailable) {
+                    TimedBuffer tb;
+//                    Log.i(TAG, String.format("cache yuv:%d", yuvs.size()));
+                    tb = yuvs.take();
+                    if(!codecAvailable){
+                        break;
+                    }
+
+                    byte[] data = tb.buffer;
+                    long stamp = tb.time;
+                    int[] outLen = new int[1];
+                    if (mDgree == 0) {
+                        Camera.CameraInfo camInfo = new Camera.CameraInfo();
+                        Camera.getCameraInfo(mCameraId, camInfo);
+                        int cameraRotationOffset = camInfo.orientation;
+                        if (cameraRotationOffset == 90) {
+                            if (mSWCodec) {
+                                Util.yuvRotate(data, 0, previewSize.width, previewSize.height, 90);
+                            } else {
+                                Util.yuvRotate(data, 1, previewSize.width, previewSize.height, 90);
+                            }
+                        } else if (cameraRotationOffset == 270) {
+                            if (mSWCodec) {
+                                Util.yuvRotate(data, 0, previewSize.width, previewSize.height, 270);
+                            } else {
+                                Util.yuvRotate(data, 1, previewSize.width, previewSize.height, 270);
+                            }
+                        }
+                    }
+                    int r = 0;
+                    byte[] newBuf = null;
+                    synchronized (lock) {
+                        if (mSWCodec && x264 != null) {
+                            byte[] keyFrm = new byte[1];
+                            if (false) {
+                                if (keyFrmHelperCount++ > 50) {
+                                    keyFrmHelperCount = 0;
+                                    keyFrm[0] = 1;
+                                } else {
+                                    keyFrm[0] = 0;
+                                }
+                            }
+                            long begin = System.currentTimeMillis();
+                            r = x264.encode(data, 0, h264, 0, outLen, keyFrm);
+                            if (r > 0) {
+                                Log.i(TAG, String.format("encode spend:%d ms. keyFrm:%d", System.currentTimeMillis() - begin, keyFrm[0]));
+//                                newBuf = new byte[outLen[0]];
+//                                System.arraycopy(h264, 0, newBuf, 0, newBuf.length);
+                            }
+                        }
+                    }
+                    if (mSWCodec) {
+                        if (r > 0) {
+                            if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
+                                mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, stamp, h264, 0, outLen[0]);
+                            }
+                        }
+                    } else {
+                        inputBuffers = mMediaCodec.getInputBuffers();
+                        outputBuffers = mMediaCodec.getOutputBuffers();
+                        int bufferIndex = mMediaCodec.dequeueInputBuffer(5000);
+                        if (bufferIndex >= 0) {
+                            inputBuffers[bufferIndex].clear();
+                            mConvertor.convert(data, inputBuffers[bufferIndex]);
+                            mMediaCodec.queueInputBuffer(bufferIndex, 0, inputBuffers[bufferIndex].position(), stamp* 1000, 0);
+
+                            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+                            int outputBufferIndex = 0;
+                            do {
+                                 outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+                                if (outputBufferIndex<0){
+                                    break;
+                                }
+                                ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
+                                //记录pps和sps
+                                int type = outputBuffer.get(4) & 0x1F;
+
+                                Log.d(TAG, String.format("type is %d", type));
+                                if (type == 7 || type == 8) {
+                                    byte[] outData = new byte[bufferInfo.size];
+                                    outputBuffer.get(outData, 0, bufferInfo.size);
+                                    mPpsSps = outData;
+                                } else if (type == 5) {
+                                    //在关键帧前面加上pps和sps数据
+                                    System.arraycopy(mPpsSps, 0, h264, 0, mPpsSps.length);
+                                    outputBuffer.get(h264, mPpsSps.length, bufferInfo.size);
+                                    if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
+                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, mPpsSps.length + bufferInfo.size);
+                                    }
+                                } else {
+                                    outputBuffer.get(h264, 0, bufferInfo.size);
+                                    if (System.currentTimeMillis() - timeStamp >= 3000) {
+                                        timeStamp = System.currentTimeMillis();
+                                        if (Build.VERSION.SDK_INT >= 23) {
+                                            Bundle params = new Bundle();
+                                            params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                                            mMediaCodec.setParameters(params);
+                                        }
+                                    }
+
+                                    if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
+                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, bufferInfo.size);
+                                    }
+                                }
+                                mMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
+                            }
+                            while(outputBufferIndex >= 0);
+                        }
+                    }
+                    yuv_caches.offer(data);
+
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }finally {
+                if (mMediaCodec != null) {
+                    mMediaCodec.stop();
+                    mMediaCodec.release();
+                    mMediaCodec = null;
+                }
+
+                synchronized (lock) {
+                    if (x264 != null) {
+                        x264.close();
+                        x264 = null;
+                        codecAvailable = false;
+                    }
+                }
+            }
         }
     }
 
@@ -149,13 +331,15 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
      */
     public synchronized void startPreview() {
         if (mCamera != null) {
+            yuv_caches.clear();
+            yuvs.clear();
             mCamera.startPreview();
             try {
                 mCamera.autoFocus(null);
             } catch (Exception e) {
                 //忽略异常
                 Log.i(TAG, "auto foucus fail");
-                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "Camera auto foucus failed!"));
+                Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_WARN, "Camera auto foucus failed!");
             }
 
             int previewFormat = mCamera.getParameters().getPreviewFormat();
@@ -168,109 +352,86 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
         }
     }
 
-    static int test = 0;
     Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
-        ByteBuffer[] inputBuffers;
-        byte[] dst;
-        ByteBuffer[] outputBuffers;
-        byte[] mPpsSps = new byte[0];
-
         @Override
         public synchronized void onPreviewFrame(byte[] data, Camera camera) {
-            if (data == null || !codecAvailable) {
-                mCamera.addCallbackBuffer(data);
+            if(data == null || camera == null){
+                return;
+            }
+
+            if (!mChannelOpen || !codecAvailable || mConsumer == null) {
+                camera.addCallbackBuffer(data);
                 return;
             }
 
             if((EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO != mChannelState) &&
                     (EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM != mChannelState)){
-                mCamera.addCallbackBuffer(data);
+                camera.addCallbackBuffer(data);
                 return;
             }
 
-            Camera.Size previewSize = mCamera.getParameters().getPreviewSize();
+            Camera.Size previewSize = camera.getParameters().getPreviewSize();
             if (data.length != previewSize.width * previewSize.height * 3 / 2) {
-                mCamera.addCallbackBuffer(data);
+                camera.addCallbackBuffer(data);
                 return;
             }
 
-            inputBuffers = mMediaCodec.getInputBuffers();
-            outputBuffers = mMediaCodec.getOutputBuffers();
-            dst = new byte[data.length];
-            if (mDgree == 0) {
-                Camera.CameraInfo camInfo = new Camera.CameraInfo();
-                Camera.getCameraInfo(mCameraId, camInfo);
-                int cameraRotationOffset = camInfo.orientation;
-                if (cameraRotationOffset == 0)
-                    dst = data;
-                if (cameraRotationOffset == 90)
-                    dst = Util.rotateNV21Degree90(data, previewSize.width, previewSize.height);
-                if (cameraRotationOffset == 180)
-                    dst = Util.rotateNV21Degree90(data, previewSize.width, previewSize.height);
-                if (cameraRotationOffset == 270)
-                    dst = Util.rotateNV21Negative90(data, previewSize.width, previewSize.height);
-            } else {
-                dst = data;
+            byte[] buffer = yuv_caches.poll();
+            if (buffer == null || buffer.length != data.length) {
+                buffer = new byte[data.length];
             }
-            try {
-                int bufferIndex = mMediaCodec.dequeueInputBuffer(5000000);
-                if (bufferIndex >= 0) {
-                    inputBuffers[bufferIndex].clear();
-                    mConvertor.convert(dst, inputBuffers[bufferIndex]);
-                    mMediaCodec.queueInputBuffer(bufferIndex, 0, inputBuffers[bufferIndex].position(), System.nanoTime() / 1000, 0);
+            yuvs.offer(new TimedBuffer(data));
+            camera.addCallbackBuffer(buffer);
+        }
+    };
 
-                    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-                    int outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);
-                    while (outputBufferIndex >= 0) {
-                        ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
-                        byte[] outData = new byte[bufferInfo.size];
-                        outputBuffer.get(outData);
-
-//                        String data0 = String.format("%x %x %x %x %x %x %x %x %x %x ", outData[0], outData[1], outData[2], outData[3], outData[4], outData[5], outData[6], outData[7], outData[8], outData[9]);
-//                        Log.e("out_data", data0);
-
-                        //记录pps和sps
-                        int type = outData[4] & 0x07;
-                        if (type == 7 || type == 8) {
-                            mPpsSps = outData;
-                        }else if (type == 5) {
-                            //在关键帧前面加上pps和sps数据
-                            byte[] iframeData = new byte[mPpsSps.length + outData.length];
-                            System.arraycopy(mPpsSps, 0, iframeData, 0, mPpsSps.length);
-                            System.arraycopy(outData, 0, iframeData, mPpsSps.length, outData.length);
-                            outData = iframeData;
-                        }
-
-                        if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                            int result = mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, System.currentTimeMillis(), outData);
-                            //Log.d(TAG, "kim pushFrame result="+result+", frame length="+outData.length+", type="+type);
-                        }
-                        mMediaCodec.releaseOutputBuffer(outputBufferIndex, false);
-                        outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);
-                    }
-
+    private void initSWEncoder(){
+        if (mSWCodec) {
+            synchronized (lock) {
+                x264 = new X264Encoder();
+                int bitrate;
+                if (width >= 1920) {
+                    bitrate = 3200;
+                } else if (width >= 1280) {
+                    bitrate = 1600;
+                } else if (width >= 640) {
+                    bitrate = 400;
                 } else {
-                    Log.e(TAG, "No buffer available !");
+                    bitrate = 300;
                 }
-            } catch (Exception e) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                String stack = sw.toString();
-                Log.e("save_log", stack);
-                e.printStackTrace();
-            } finally {
-                mCamera.addCallbackBuffer(dst);
-            }
-
-            if(!codecAvailable){
-                mMediaCodec.stop();
-                mMediaCodec.release();
-                mMediaCodec = null;
+                if (mDgree == 0) {
+                    x264.create(height, width, 15, bitrate);
+                } else {
+                    x264.create(width, height, 15, bitrate);
+                }
+                codecAvailable = true;
             }
         }
+    }
 
-    };
+    private void x264GetSPSPPS(){
+        int[] spsLen = new int[1];
+        int[] ppsLen = new int[1];
+        byte[] sps = new byte[1024];
+        byte[] pps = new byte[1024];
+
+        initSWEncoder();
+        int iRet = x264.getSpsPps(sps, spsLen, pps, ppsLen);
+        if(iRet >= 0){
+            if(spsLen[0] > 0 && spsLen[0] <= 255) {
+                mSps = new byte[spsLen[0]];
+                System.arraycopy(sps, 0, mSps, 0, spsLen[0]);
+            }
+            if(ppsLen[0] > 0 && ppsLen[0] <= 255) {
+                mPps = new byte[ppsLen[0]];
+                System.arraycopy(pps, 0, mPps, 0, ppsLen[0]);
+            }
+        } else {
+            Log.e(TAG, "sw get sps pps failed!");
+        }
+
+        x264.close();
+    }
 
     /**
      * 停止预览
@@ -285,7 +446,6 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     public Camera getCamera() {
         return mCamera;
     }
-
 
     /**
      * 切换前后摄像头
@@ -367,75 +527,113 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             }
             mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
             mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
-            mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                    debugger.getEncoderColorFormat());
+            mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,debugger.getEncoderColorFormat());
             mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
             mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mMediaCodec.start();
             codecAvailable = true;
         } catch (IOException e) {
-            String info = String.format("start MediaCodec failed!");
-            StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", info));
+            Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "start MediaCodec failed!");
             e.printStackTrace();
         }
     }
 
-    /**
-     * 停止编码并释放编码资源占用
-     */
-    private void stopMediaCodec() {
-        if (mMediaCodec != null) {
-            codecAvailable = false;
-//            mMediaCodec.stop();
-//            mMediaCodec.release();
-//            mMediaCodec = null;
+    private void initEncoder(){
+        if(mSWCodec){
+            x264GetSPSPPS();
+        } else {
+            initMediaCodec();
+        }
+    }
+
+    private void startPush(){
+        yuv_caches.clear();
+        yuvs.clear();
+
+        Thread t = mConsumer;
+        if (t != null) {
+            mConsumer = null;
+            t.interrupt();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        mConsumer = new Consumer();
+        mConsumer.start();
+    }
+
+    private void stopPush(){
+        codecAvailable = false;
+
+        Thread t = mConsumer;
+        if (t != null) {
+            t.interrupt();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            mConsumer = null;
         }
     }
 
     private void setChannelState(int state){
         if(state <= 2) {
             mChannelState = state;
-            audioStream.setChannelState(state);
+//            audioStream.setChannelState(state);
         }
     }
 
-    public void startStream(String ip, String port, final String id) {
-        final int iport = Integer.parseInt(port);
-
-        mChannelId = mEasyIPCamera.registerCallback(this);
-        audioStream.setChannelId(mChannelId);
-
-        int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes());
-        Log.d(TAG, "kim startup result="+result);
-
-        initMediaCodec();
-
-        String info = String.format("EasyIPCamera started");
-        StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", info));
+    public boolean isOpen() {
+        return mChannelOpen;
     }
 
-    public void stopStream() {
+    public void startChannel(String ip, String port, final String id) {
+        final int iport = Integer.parseInt(port);
+
+        mChannelOpen = true;
+
+        mChannelId = mEasyIPCamera.registerCallback(this);
+//        audioStream.setChannelId(mChannelId);
+        if(0 != mEasyIPCamera.active(EasyApplication.getEasyApplication())){
+            Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EasyIPCamera active failed.");
+            return;
+        }
+
+        int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes());
+        Log.d(TAG, "startup result="+result);
+
+        initEncoder();
+        Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EasyIPCamera started");
+    }
+
+    public void stopChannel() {
         setChannelState(0);
-        audioStream.stop();
-        stopMediaCodec();
+//        audioStream.stop();
+        stopPush();
 
         mEasyIPCamera.resetChannel(mChannelId);
         int result = mEasyIPCamera.shutdown();
-        Log.d(TAG, "kim shutdown result="+result);
+        Log.d(TAG, "shutdown result="+result);
 
         mEasyIPCamera.unrigisterCallback(this);
+        mChannelOpen = false;
     }
 
-    public void destroyStream() {
+    public void destroyChannel() {
         if (pushThread != null) {
             pushThread.interrupt();
         }
         setChannelState(0);
 
         destroyCamera();
-        stopMediaCodec();
+        stopPush();
         mEasyIPCamera.resetChannel(mChannelId);
         mEasyIPCamera.shutdown();
+        mChannelOpen = true;
     }
 
     @Override
@@ -448,46 +646,52 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
         switch(channelState){
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_ERROR:
-                Log.d(TAG, "kim EASY_IPCAMERA_STATE_ERROR");
-                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Warn", "EASY_IPCAMERA_STATE_ERROR"));
+                Log.d(TAG, "EASY_IPCAMERA_STATE_ERROR");
+                Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_WARN, "EASY_IPCAMERA_STATE_ERROR");
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO:
-//                /* 媒体信息 */
-                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO"));
+                /* 媒体信息 */
+                Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO");
 
                 ByteBuffer buffer = ByteBuffer.wrap(mediaInfo);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 buffer.putInt(EasyIPCamera.VideoCodec.EASY_SDK_VIDEO_CODEC_H264);
                 buffer.putInt(framerate);
-                buffer.putInt(audioStream.getAudioEncCodec());
-                buffer.putInt(audioStream.getSamplingRate());
-                buffer.putInt(audioStream.getChannelNum());
-                buffer.putInt(audioStream.getBitsPerSample());
+//                buffer.putInt(audioStream.getAudioEncCodec());
+//                buffer.putInt(audioStream.getSamplingRate());
+//                buffer.putInt(audioStream.getChannelNum());
+//                buffer.putInt(audioStream.getBitsPerSample());
+                buffer.putInt(0);
+                buffer.putInt(0);
+                buffer.putInt(0);
+                buffer.putInt(0);
+
                 buffer.putInt(0);//vps length
+
                 buffer.putInt(mSps.length);
                 buffer.putInt(mPps.length);
                 buffer.putInt(0);
                 buffer.put(mVps);
                 buffer.put(mSps,0,mSps.length);
-                if(mSps.length < 128) {
-                    buffer.put(mVps, 0, 128 - mSps.length);
+                if(mSps.length < 255) {
+                    buffer.put(mVps, 0, 255 - mSps.length);
                 }
                 buffer.put(mPps,0,mPps.length);
-                if(mPps.length < 36) {
-                    buffer.put(mVps, 0, 36 - mPps.length);
+                if(mPps.length < 128) {
+                    buffer.put(mVps, 0, 128 - mPps.length);
                 }
                 buffer.put(mMei);
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM:
-                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM"));
-                startMediaCodec();
-                audioStream.startRecord();
+                Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM");
+                startPush();
+//                audioStream.startRecord();
 
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM:
-                StatusInfoView.getInstence().addInfoMsg(new StatusInfoView.StatusInfo("Info", "EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM"));
-                stopMediaCodec();
-                audioStream.stop();
+                Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EASY_IPCAMERA_STATE_REQUEST_STOP_STREAM");
+                stopPush();
+//                audioStream.stop();
                 break;
             default:
                 break;

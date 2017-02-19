@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -7,6 +7,7 @@
 
 package org.easydarwin.easyipcamera.camera;
 
+import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -58,14 +59,14 @@ public class EasyIPCamera {
         public static final int EASY_SDK_AUDIO_CODEC_G726 = 0x1100B;		/* G726  */
     }
 
-    int registerCallback(IPCameraCallBack cb) {
+    public int registerCallback(IPCameraCallBack cb) {
         synchronized (sCallbacks) {
             sCallbacks.put(++sKey, cb);
             return sKey;
         }
     }
 
-    void unrigisterCallback(IPCameraCallBack cb) {
+    public void unrigisterCallback(IPCameraCallBack cb) {
         synchronized (sCallbacks) {
             int idx = sCallbacks.indexOfValue(cb);
             if (idx != -1) {
@@ -89,6 +90,8 @@ public class EasyIPCamera {
         return;
     }
 
+    public native int active(String key, Context context);
+
     /* 启动 Rtsp Server */
 	/*设置监听端口, 回调函数及自定义数据 */
     public native int startup(int listenport, int authType, String realm, String username, String password, int userptr,int channelid, byte[] channelinfo);
@@ -97,11 +100,24 @@ public class EasyIPCamera {
     public native int shutdown();
 
     /* frame:  具体发送的帧数据 */
-    public native int pushFrame(int channelId, int avFrameFlag, long timestamp, byte[] pBuffer);
+    public native int pushFrame(int channelId, int avFrameFlag, long timestamp, byte[] pBuffer, int offset, int length);
 
     public native int resetChannel(int channelId);
 
     public interface IPCameraCallBack {
         void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr);
+    }
+
+    public int active(Context context){
+        String key = "6D72754B7A4A36526D343041344B68597031636670655276636D63755A57467A65575268636E64706269356C59584E356158426A5957316C636D4658444661672F365867523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D";
+        int iRet = active(key, context);
+        if(iRet != 0){
+            Log.e(TAG, "Key invalid! active failed!!! return : " + iRet);
+        }
+        return iRet;
+    }
+
+    public int pushFrame(int channelId, int avFrameFlag, long timestamp, byte[] pBuffer){
+        return pushFrame(channelId, avFrameFlag, timestamp, pBuffer, 0, pBuffer.length);
     }
 }

@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2012-2016 EasyDarwin.ORG.  All rights reserved.
+	Copyright (c) 2012-2017 EasyDarwin.ORG.  All rights reserved.
 	Github: https://github.com/EasyDarwin
 	WEChat: EasyDarwin
 	Website: http://www.easydarwin.org
@@ -40,7 +40,8 @@ public class AudioStream {
     private Thread encodeThread = null;
     String TAG = "AudioStream";
     //final String path = Environment.getExternalStorageDirectory() + "/123450001.aac";
-    boolean stoped = false;
+    private boolean stoped = false;
+    private boolean mPushAudio = false;
     private int mChannelState = 0;
 
     protected MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
@@ -81,6 +82,7 @@ public class AudioStream {
     private void init() {
         try {
             stoped=false;
+            mPushAudio = false;
             mAudioEncCodec = EasyIPCamera.AudioCodec.EASY_SDK_AUDIO_CODEC_AAC;
             mBitsPerSample = 16;//AudioFormat.ENCODING_PCM_16BIT;
             mChannelNum = 1;
@@ -154,20 +156,20 @@ public class AudioStream {
                                 }
                             }
                         }
-                        int size = mBufferInfo.size + 7;
-                        byte[] buffer = new byte[size];
-                        mBuffer.get(buffer);
 
-                        Log.d(TAG, "kim mChannelState="+mChannelState+", mChannelId="+mChannelId+", length="+buffer.length);
-                        if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                            mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_AUDIO_FRAME_FLAG, System.currentTimeMillis(), buffer);
+                        int size = mBufferInfo.size + 7;
+                        //Log.d(TAG, "kim mChannelState="+mChannelState+", mChannelId="+mChannelId+", length="+buffer.length);
+                        if(mPushAudio && mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
+//                            byte[] buffer = new byte[size];
+//                            mBuffer.get(buffer, 0, size);
+                            mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_AUDIO_FRAME_FLAG, System.currentTimeMillis(), mBuffer.array(), 0, size);
                         }
 
                         if (mBuffer.position() >= size) { // read complete
                             mMediaCodec.releaseOutputBuffer(mIndex, false);
                             mBuffer = null;
                         }
-                    } catch (RuntimeException e) {
+                    } catch (Exception e) {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
@@ -210,7 +212,7 @@ public class AudioStream {
                                 }
                             }
                         }
-                    } catch (RuntimeException e) {
+                    } catch (Exception e) {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
@@ -263,6 +265,14 @@ public class AudioStream {
 
     public void stop() {
         stoped = true;
+    }
+
+    public void startPush(){
+        mPushAudio = true;
+    }
+
+    public void stopPush(){
+        mPushAudio = false;
     }
 
     public int getAudioEncCodec(){
