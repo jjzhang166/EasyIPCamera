@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".activity.EasyApplication"
@@ -39,11 +40,14 @@
             android:name=".activity.SettingActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.StreameActivity"
+            android:name=".activity.StreamActivity"
             android:screenOrientation="portrait" />
 
         <service
             android:name=".activity.RecordService"
+            android:enabled="true" />
+        <service
+            android:name=".activity.BackgroundCameraService"
             android:enabled="true" />
 
         <receiver android:name=".updatemgr.CompleteReceiver" >

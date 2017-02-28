@@ -51,6 +51,15 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        CheckBox bgCamera = (CheckBox) findViewById(R.id.background_camera);
+        bgCamera.setChecked(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background-camera", false));
+        bgCamera.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                PreferenceManager.getDefaultSharedPreferences(SettingActivity.this).edit().putBoolean("background-camera", isChecked).apply();
+            }
+        });
+
         Button btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override

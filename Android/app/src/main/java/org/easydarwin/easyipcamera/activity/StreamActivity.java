@@ -6,11 +6,14 @@
 */
 package org.easydarwin.easyipcamera.activity;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -38,9 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class StreameActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
+public class StreamActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
 
-    static final String TAG = "StreameActivity";
+    static final String TAG = "StreamActivity";
     public static final int REQUEST_MEDIA_PROJECTION = 1002;
 
     //默认分辨率
@@ -56,6 +59,8 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     private StatusInfoView mDbgInfoPrint;
     static Intent mResultIntent;
     static int mResultCode;
+    boolean mBackgroundCamera;
+    SurfaceHolder mSurfaceHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +98,36 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
             height = Integer.parseInt(splitR[1]);
         }
 
-        mMediaStream = new MediaStream(getApplicationContext(), surfaceView);
+        if(EasyApplication.sMS == null){
+            mMediaStream = new MediaStream(getApplicationContext(), null);
+            EasyApplication.sMS = mMediaStream;
+        } else {
+            mMediaStream = EasyApplication.sMS;
+            if(mMediaStream.isOpen()){
+                btnSetting.setEnabled(false);
+                btnPushScreen.setEnabled(false);
+                btnSwitchCemera.setEnabled(false);
+
+                String ip = Util.getLocalIpAddress();
+                String port = EasyApplication.getEasyApplication().getPort();
+                String id = EasyApplication.getEasyApplication().getId();
+                btnSwitch.setText("停止");
+                txtStreamAddress.setVisibility(View.VISIBLE);
+                StatusInfoView.getInstence().setVisibility(View.VISIBLE);
+                txtStreamAddress.setText(String.format(getRTSPAddr()));
+            }
+        }
+
+        mBackgroundCamera = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("background-camera", false);
+//        if(mBackgroundCamera) {
+//            Intent bgcamera = new Intent(StreamActivity.this, BackgroundCameraService.class);
+//            stopService(bgcamera);
+//            startService(bgcamera);
+//        } else {
+//            mMediaStream.setSurfaceHolder(mSurfaceHolder);
+//            mMediaStream.createCamera();
+//            mMediaStream.startPreview();
+//        }
         mMediaStream.updateResolution(width, height);
         mMediaStream.setDgree(getDgree());
         initSpninner();
@@ -144,9 +178,20 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        mMediaStream.createCamera();
-        mMediaStream.startPreview();
+    public void surfaceCreated(final SurfaceHolder holder) {
+        mBackgroundCamera = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("background-camera", false);
+        mSurfaceHolder = holder;
+        if(mBackgroundCamera){
+            if(!mMediaStream.isOpen()) {
+                Intent bgcamera = new Intent(StreamActivity.this, BackgroundCameraService.class);
+                stopService(bgcamera);
+                startService(bgcamera);
+            }
+        } else {
+            mMediaStream.setSurfaceHolder(holder);
+            mMediaStream.createCamera();
+            mMediaStream.startPreview();
+        }
     }
 
     @Override
@@ -156,10 +201,12 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mMediaStream.stopPreview();
-        mMediaStream.destroyCamera();
-        if(mMediaStream.isOpen()){
-            mMediaStream.stopChannel();
+        if (!mBackgroundCamera) {
+            mMediaStream.stopPreview();
+            mMediaStream.destroyCamera();
+            if (mMediaStream.isOpen()) {
+                mMediaStream.stopChannel();
+            }
         }
     }
 
@@ -252,7 +299,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
     }
 
     private void startScreenPushIntent() {
-        if (StreameActivity.mResultIntent != null && StreameActivity.mResultCode != 0) {
+        if (StreamActivity.mResultIntent != null && StreamActivity.mResultCode != 0) {
             RecordService.mEasyIPCamera = new EasyIPCamera();
             RecordService.mEasyIPCamera.active(getApplicationContext());
             Intent intent = new Intent(getApplicationContext(), RecordService.class);
@@ -266,7 +313,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
                 MediaProjectionManager mMpMngr = (MediaProjectionManager) getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
-                startActivityForResult(mMpMngr.createScreenCaptureIntent(), StreameActivity.REQUEST_MEDIA_PROJECTION);
+                startActivityForResult(mMpMngr.createScreenCaptureIntent(), StreamActivity.REQUEST_MEDIA_PROJECTION);
 
             }
         }
@@ -282,7 +329,7 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
             new AlertDialog.Builder(this).setTitle("提醒").setMessage("屏幕直播将要开始,直播过程中您可以切换到其它屏幕。不过记得直播结束后,再进来停止直播哦!").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    PreferenceManager.getDefaultSharedPreferences(StreameActivity.this).edit().putBoolean("alert_screen_background_pushing", true).apply();
+                    PreferenceManager.getDefaultSharedPreferences(StreamActivity.this).edit().putBoolean("alert_screen_background_pushing", true).apply();
                     onPushScreen();
                 }
             }).show();
@@ -347,8 +394,8 @@ public class StreameActivity extends AppCompatActivity implements SurfaceHolder.
                 new AlertDialog.Builder(this).setTitle("提醒").setMessage("您设置了使能摄像头后台采集,因此摄像头将会继续在后台采集并上传视频。记得直播结束后,再回来这里关闭直播。").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        PreferenceManager.getDefaultSharedPreferences(StreameActivity.this).edit().putBoolean("background_camera_alert", true).apply();
-                        StreameActivity.super.onBackPressed();
+                        PreferenceManager.getDefaultSharedPreferences(StreamActivity.this).edit().putBoolean("background_camera_alert", true).apply();
+                        StreamActivity.super.onBackPressed();
                     }
                 }).show();
                 return;

@@ -254,9 +254,9 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void startVirtualDisplay() {
         if (mMpj == null) {
-            mMpj = mMpmngr.getMediaProjection(StreameActivity.mResultCode, StreameActivity.mResultIntent);
-            StreameActivity.mResultCode = 0;
-            StreameActivity.mResultIntent = null;
+            mMpj = mMpmngr.getMediaProjection(StreamActivity.mResultCode, StreamActivity.mResultIntent);
+            StreamActivity.mResultCode = 0;
+            StreamActivity.mResultIntent = null;
 
         }
         mVirtualDisplay = mMpj.createVirtualDisplay("record_screen", windowWidth, windowHeight, screenDensity,

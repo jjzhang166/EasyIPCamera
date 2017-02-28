@@ -48,7 +48,6 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     int bitrate;
     int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     MediaCodec mMediaCodec;
-    SurfaceView mSurfaceView;
     SurfaceHolder mSurfaceHolder;
     Camera mCamera;
     NV21Convertor mConvertor;
@@ -69,12 +68,15 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     byte[] mPps = new byte[128];
     byte[] mMei = new byte[128];
 
-    public MediaStream(Context context, SurfaceView mSurfaceView) {
+    public MediaStream(Context context, SurfaceHolder holder) {
         mApplicationContext = context;
-        this.mSurfaceView = mSurfaceView;
-        mSurfaceHolder = mSurfaceView.getHolder();
+        mSurfaceHolder = holder;
         mEasyIPCamera = new EasyIPCamera();
 //        audioStream = new AudioStream(mEasyIPCamera);
+    }
+
+    public void setSurfaceHolder(SurfaceHolder holder){
+        mSurfaceHolder = holder;
     }
 
     public void setDgree(int dgree) {
