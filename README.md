@@ -45,7 +45,7 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 	</table>
 
 ## 调用全流程 ##
-![](http://www.easydarwin.org/skin/easydarwin/images/easyipcamera20160805.gif)
+![](http://www.easydarwin.org/github/images/easyipcamera/easyipcamera20160805.gif)
 
 
 ## 设计方法 ##
