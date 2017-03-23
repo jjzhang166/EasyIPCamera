@@ -15,8 +15,9 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 	1. Android：采集Android摄像头（支持前/后摄像头切换）和麦克风声音作为数据源的安卓RTSPServer；
 	2. EasyIPCamera_Win：Windows采集摄像头/屏幕桌面/麦克风的音视频做为数据源的RTSPServer；
 	3. EasyIPCamera_RTSP：以其他IPC硬件（海康、大华、雄迈）提供的RTSP流做为EasyIPCamera的数据源，对外提供RTSPServer功能；
-	4. EasyScreenCapture：Windows屏幕采集与直播同屏服务，详细介绍参考：[http://blog.csdn.net/xiejiashu/article/details/61211382](http://blog.csdn.net/xiejiashu/article/details/61211382)；
-	5. ARM上我们提供基于海思v100/v200/v300/v400以及其他ARM芯片的摄像机芯片编码后的音视频做为数据源的RTSPServer，具体芯片调用demo示例代码请邮件至support@easydarwin.org申请；
+	4. EasyIPCameraSimulator：我们基于EasyIPCamera做的一个IPC的模拟器，一个EasyIPCameraSimulator可以模拟器很多IPC，详细介绍参考：[http://blog.csdn.net/xiejiashu/article/details/64924006](http://blog.csdn.net/xiejiashu/article/details/64924006 "EasyIPCamera")
+	5. EasyScreenCapture：Windows屏幕采集与直播同屏服务，详细介绍参考：[http://blog.csdn.net/xiejiashu/article/details/61211382](http://blog.csdn.net/xiejiashu/article/details/61211382)；
+	6. ARM上我们提供基于海思v100/v200/v300/v400以及其他ARM芯片的摄像机芯片编码后的音视频做为数据源的RTSPServer，具体芯片调用demo示例代码请邮件至support@easydarwin.org申请；
 	
 	Windows编译方法，
 
