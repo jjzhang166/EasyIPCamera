@@ -58,6 +58,12 @@ EasyIPCamera参考live555 testProg中的testOnDemandRTSPServer示例程序，将
 <img src="http://img.blog.csdn.net/20170223081816450?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamlubG9uZzA2MDM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" width="40%" height="30%" />
 </center>
 
+## 版本下载 ##
+
+Android EasyIPCamera Demo下载： [https://fir.im/EasyIPCamera](https://fir.im/EasyIPCamera "https://fir.im/EasyIPCamera")
+
+[![EasyIPCamera](http://www.easydarwin.org/github/images/easyipcamera/EasyIPCamera_Android.png)](https://fir.im/EasyIPCamera "EasyIPCamera")
+
 ### EasyIPCamera支持数据格式说明 ###
 
 EASY\_SDK\_VIDEO\_FRAME\_FLAG数据可支持多种视频格式：
