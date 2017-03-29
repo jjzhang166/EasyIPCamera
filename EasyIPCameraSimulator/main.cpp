@@ -41,7 +41,7 @@ char* ConfigIP	=	"127.0.0.1";			//Default EasyDarwin Address 183.220.236.189
 char* ConfigPort=	"8554";					//Default EasyDarwin Port121.40.50.44
 char* ConfigName=	"channel";	//Default RTSP Push StreamName
 char* H264FileName = "./channel0.h264";
-int	  OutputCount = 8;					//输出流路数
+int	  OutputCount = 16;					//输出流路数
 
 HANDLE g_FileCapThread[MAX_CHANNELS] ;
 FILE * fES[MAX_CHANNELS];
@@ -347,6 +347,11 @@ int main(int argc, char * argv[])
 
     printf("Press Enter exit...\n");
     getchar();
+	  getchar();
+	    getchar();
+		  getchar();
+		    getchar();
+			  getchar();
 
 	for(int nI=0; nI<OutputCount; nI++)
 	{
