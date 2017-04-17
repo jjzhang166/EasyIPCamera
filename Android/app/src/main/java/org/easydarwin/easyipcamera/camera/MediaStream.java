@@ -44,7 +44,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     EasyIPCamera mEasyIPCamera;
     static final String TAG = "MediaStream";
     int width = 640, height = 480;
-    int framerate = 25;
+    int framerate = 20;
     int bitrate;
     int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     MediaCodec mMediaCodec;
@@ -279,11 +279,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                                     outputBuffer.get(outData, 0, bufferInfo.size);
                                     mPpsSps = outData;
                                 } else if (type == 5) {
-                                    //在关键帧前面加上pps和sps数据
-                                    System.arraycopy(mPpsSps, 0, h264, 0, mPpsSps.length);
-                                    outputBuffer.get(h264, mPpsSps.length, bufferInfo.size);
+                                    outputBuffer.get(h264, 0, bufferInfo.size);
                                     if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, mPpsSps.length + bufferInfo.size);
+                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, bufferInfo.size);
                                     }
                                 } else {
                                     outputBuffer.get(h264, 0, bufferInfo.size);
@@ -508,9 +506,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
      * 初始化编码器
      */
     private void initMediaCodec() {
-        framerate = 25;
+        framerate = 20;
         bitrate = 2 * width * height * framerate / 20;
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, width, height);
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, height, width, framerate);
         mConvertor = debugger.getNV21Convertor();
 
         mSps = Base64.decode(debugger.getB64SPS(), Base64.NO_WRAP);
@@ -518,7 +516,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     }
 
     private void startMediaCodec() {
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, width, height);
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, height, width, framerate);
         try {
             mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
             MediaFormat mediaFormat;
@@ -672,6 +670,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
                 buffer.putInt(mSps.length);
                 buffer.putInt(mPps.length);
+
                 buffer.putInt(0);
                 buffer.put(mVps);
                 buffer.put(mSps,0,mSps.length);
