@@ -8,8 +8,8 @@ android {
         applicationId "org.easydarwin.easyipcamera"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 4
-        versionName "1.2.17.0219"
+        versionCode 5
+        versionName "1.2.17.0417"
     }
     buildTypes {
         release {
