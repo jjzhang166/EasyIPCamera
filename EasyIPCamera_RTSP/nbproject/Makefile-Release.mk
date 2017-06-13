@@ -63,12 +63,12 @@ ${CND_CONF}/easyipcamera_rtsp: ${OBJECTFILES}
 	${MKDIR} -p ${CND_CONF}
 	${LINK.cc} -o ${CND_CONF}/easyipcamera_rtsp ${OBJECTFILES} ${LDLIBSOPTIONS} -leasyrtspclient -leasyipcamera -lrt -lpthread
 
-${OBJECTDIR}/GetVPSSPSPPS.o: GetVPSSPSPPS.cpp 
+${OBJECTDIR}/GetVPSSPSPPS.o: GetVPSSPSPPS.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -IlibEasyRTSPClient/Include -I../Include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/GetVPSSPSPPS.o GetVPSSPSPPS.cpp
 
-${OBJECTDIR}/main.o: main.cpp 
+${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -IlibEasyRTSPClient/Include -I../Include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
@@ -79,7 +79,6 @@ ${OBJECTDIR}/main.o: main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_CONF}/easyipcamera_rtsp
 
 # Subprojects
 .clean-subprojects:
