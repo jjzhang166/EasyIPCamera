@@ -12,19 +12,35 @@
             <sourceRootList/>
             <confList>
                 <confElem>
-                    <name>Debug</name>
-                    <type>1</type>
-                </confElem>
-                <confElem>
-                    <name>Release</name>
-                    <type>1</type>
-                </confElem>
-                <confElem>
                     <name>x64</name>
                     <type>1</type>
                 </confElem>
                 <confElem>
                     <name>i386</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv100</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv200</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv300</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv400</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv500</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>hisiv600</name>
                     <type>1</type>
                 </confElem>
             </confList>

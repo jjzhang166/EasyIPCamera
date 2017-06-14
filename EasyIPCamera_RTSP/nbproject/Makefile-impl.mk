@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=EasyIPCamera_RTSP
 
 # Active Configuration
-DEFAULTCONF=Debug
+DEFAULTCONF=x64
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Debug Release x64 i386 
+ALLCONFS=x64 i386 hisiv100 hisiv200 hisiv300 hisiv400 hisiv500 hisiv600 
 
 
 # build
