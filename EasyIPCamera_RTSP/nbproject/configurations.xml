@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="97">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles" displayName="头文件" projectFiles="true">
     </logicalFolder>
@@ -24,36 +24,7 @@
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="Debug" type="1">
-      <toolsSet>
-        <compilerSet>default</compilerSet>
-        <dependencyChecking>true</dependencyChecking>
-        <rebuildPropChanged>false</rebuildPropChanged>
-      </toolsSet>
-      <compileType>
-        <ccTool>
-          <incDir>
-            <pElem>libEasyRTSPClient/Include</pElem>
-            <pElem>../Include</pElem>
-          </incDir>
-        </ccTool>
-        <linkerTool>
-          <output>${CND_CONF}/easyipcamera_rtsp</output>
-          <linkerAddLib>
-            <pElem>../Lib/x64</pElem>
-            <pElem>libEasyRTSPClient/Lib/x64</pElem>
-          </linkerAddLib>
-          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
-        </linkerTool>
-      </compileType>
-      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="main.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-    </conf>
-    <conf name="Release" type="1">
+    <conf name="x64" type="1">
       <toolsSet>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
@@ -79,8 +50,285 @@
         <linkerTool>
           <output>${CND_CONF}/easyipcamera_rtsp</output>
           <linkerAddLib>
-            <pElem>../Lib/x64</pElem>
+            <pElem>../Lib/x64_shared</pElem>
             <pElem>libEasyRTSPClient/Lib/x64</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="i386" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <commandLine>-m32</commandLine>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+          <commandLine>-m32</commandLine>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv100" type="1">
+      <toolsSet>
+        <compilerSet>hisiv100|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <commandlineTool>gcc</commandlineTool>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv200" type="1">
+      <toolsSet>
+        <compilerSet>hisiv200|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv300" type="1">
+      <toolsSet>
+        <compilerSet>hisiv300|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv400" type="1">
+      <toolsSet>
+        <compilerSet>hisiv400|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <stripSymbols>true</stripSymbols>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv500" type="1">
+      <toolsSet>
+        <compilerSet>hisiv500|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
+          </linkerAddLib>
+          <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="GetVPSSPSPPS.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GetVPSSPSPPS.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="hisiv600" type="1">
+      <toolsSet>
+        <compilerSet>hisiv600|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>libEasyRTSPClient/Include</pElem>
+            <pElem>../Include</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_CONF}/easyipcamera_rtsp</output>
+          <linkerAddLib>
+            <pElem>../Lib/${CND_CONF}_shared</pElem>
+            <pElem>libEasyRTSPClient/Lib/${CND_CONF}</pElem>
           </linkerAddLib>
           <commandLine>-leasyrtspclient -leasyipcamera -lrt -lpthread</commandLine>
         </linkerTool>

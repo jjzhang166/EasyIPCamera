@@ -41,7 +41,7 @@ char* ConfigIP	=	"127.0.0.1";			//Default EasyDarwin Address 183.220.236.189
 char* ConfigPort=	"8554";					//Default EasyDarwin Port121.40.50.44
 char* ConfigName=	"channel";	//Default RTSP Push StreamName
 char* H264FileName = "./channel0.h264";
-int	  OutputCount = 16;					//输出流路数
+int	  OutputCount = 1;					//输出流路数
 
 HANDLE g_FileCapThread[MAX_CHANNELS] ;
 FILE * fES[MAX_CHANNELS];
@@ -266,14 +266,16 @@ int main(int argc, char * argv[])
 		exit(1);
 	}
 
-	bool bSuc = GetLocalIP(szIP);
+	/*bool bSuc = GetLocalIP(szIP);
 	if (!bSuc)
 	{
 		printf("获取本机IP失败！\n");
 		printf("Press Enter exit...\n");
 		getchar();
 		return 0;
-	}
+	}*/
+	sprintf(szIP, "127.0.0.1");
+
 	int nServerPort = GetAvaliblePort(atoi(ConfigPort));
 
 
@@ -419,7 +421,7 @@ unsigned int _stdcall  CaptureFileThread(void* lParam)
 				(unsigned char)pbuf[position-4]== 0x00 && 
 				(unsigned char)pbuf[position-3] == 0x00 &&
 				(unsigned char)pbuf[position-2] == 0x01 &&
-				(naltype == 0x07 || naltype == 0x01 ) )
+				(naltype == 0x07 || naltype == 0x01 || naltype == 0x05) )
 			{
 				int framesize = position - 5;
 				naltype = (unsigned char)pbuf[4] & 0x1F;
@@ -452,6 +454,7 @@ unsigned int _stdcall  CaptureFileThread(void* lParam)
 							break;
 						}
 					}
+
 					frame.pBuffer = (Easy_U8*)(pbuf+iOffset+4);
 					frame.u32AVFrameFlag = EASY_SDK_VIDEO_FRAME_FLAG;
 					frame.u32AVFrameLen  = framesize-iOffset-4;
