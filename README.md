@@ -56,7 +56,7 @@ EasyIPCamera参考live555 testProg中的testOnDemandRTSPServer示例程序，将
 ## Android同屏效果 ##
 上方的手机运行EasyIPCamera的屏幕推送功能，下面的手机使用EasyPlayer Android版本进行播放的 同屏直播效果。网络良好的时候延迟只有200多毫秒。
 <center>
-<img src="http://img.blog.csdn.net/20170223081816450?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamlubG9uZzA2MDM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" width="40%" height="30%" />
+<img src="http://www.easydarwin.org/images/20170223081816450.gif"  />
 </center>
 
 ## 版本下载 ##
