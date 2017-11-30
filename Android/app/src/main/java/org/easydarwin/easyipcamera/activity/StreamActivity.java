@@ -255,7 +255,7 @@ public class StreamActivity extends AppCompatActivity implements SurfaceHolder.C
                     btnSwitch.setText("停止");
                     txtStreamAddress.setVisibility(View.VISIBLE);
                     StatusInfoView.getInstence().setVisibility(View.VISIBLE);
-                    txtStreamAddress.setText(String.format(getRTSPAddr()));
+                    txtStreamAddress.setText(getRTSPAddr());
                 } else {
                     txtStreamAddress.setVisibility(View.INVISIBLE);
                     StatusInfoView.getInstence().setVisibility(View.INVISIBLE);
