@@ -657,10 +657,12 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 buffer.putInt(EasyIPCamera.VideoCodec.EASY_SDK_VIDEO_CODEC_H264);
                 buffer.putInt(framerate);
+                buffer.putInt(0);
 //                buffer.putInt(audioStream.getAudioEncCodec());
 //                buffer.putInt(audioStream.getSamplingRate());
 //                buffer.putInt(audioStream.getChannelNum());
 //                buffer.putInt(audioStream.getBitsPerSample());
+                buffer.putInt(0);
                 buffer.putInt(0);
                 buffer.putInt(0);
                 buffer.putInt(0);

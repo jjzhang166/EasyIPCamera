@@ -77,7 +77,7 @@ public class EasyIPCamera {
 
     /* 回调函数定义 userptr表示用户自定义数据 */
     public static void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr){
-        Log.d(TAG, "kim onIPCameraCallBack channelId="+channelId+", channelState="+channelState);
+        Log.d(TAG, "onIPCameraCallBack channelId="+channelId+", channelState="+channelState);
         //TODO::
 
         synchronized (sCallbacks) {
@@ -103,6 +103,10 @@ public class EasyIPCamera {
     public native int pushFrame(int channelId, int avFrameFlag, long timestamp, byte[] pBuffer, int offset, int length);
 
     public native int resetChannel(int channelId);
+
+    public native int configUser(String username, String password);
+
+    public native int deleteUser(String username);
 
     public interface IPCameraCallBack {
         void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr);
