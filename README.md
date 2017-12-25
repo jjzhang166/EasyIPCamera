@@ -46,7 +46,9 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 	<tr><td colspan="3"><center>邮件获取更多平台版本</center></td></tr>
 	</table>
 
+
 ## 调用全流程 ##
+
 ![](http://www.easydarwin.org/github/images/easyipcamera/easyipcamera20160805.gif)
 
 
@@ -55,9 +57,12 @@ EasyIPCamera参考live555 testProg中的testOnDemandRTSPServer示例程序，将
 
 ## Android同屏效果 ##
 上方的手机运行EasyIPCamera的屏幕推送功能，下面的手机使用EasyPlayer Android版本进行播放的 同屏直播效果。网络良好的时候延迟只有200多毫秒。
+
 <center>
-<img src="http://www.easydarwin.org/images/20170223081816450.gif"  />
+<img src="http://www.easydarwin.org/github/images/easyipcamera/easyscreenlive_android_20171225.png"  />
 </center>
+
+[点击观看视频](http://www.easydarwin.org/images/20170223081816450.gif "EasyIPCamera")
 
 ## 版本下载 ##
 
