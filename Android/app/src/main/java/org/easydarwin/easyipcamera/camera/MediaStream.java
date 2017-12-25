@@ -8,6 +8,7 @@
 package org.easydarwin.easyipcamera.camera;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.MediaCodec;
@@ -21,7 +22,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import org.easydarwin.easyipcamera.activity.EasyApplication;
 import org.easydarwin.easyipcamera.hw.EncoderDebugger;
 import org.easydarwin.easyipcamera.hw.NV21Convertor;
 import org.easydarwin.easyipcamera.sw.JNIUtil;
@@ -40,14 +40,14 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class MediaStream implements EasyIPCamera.IPCameraCallBack {
-
     EasyIPCamera mEasyIPCamera;
     static final String TAG = "MediaStream";
     int width = 640, height = 480;
-    int framerate = 20;
+    int framerate = 25;
     int bitrate;
     int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     MediaCodec mMediaCodec;
+    SurfaceView mSurfaceView;
     SurfaceHolder mSurfaceHolder;
     Camera mCamera;
     NV21Convertor mConvertor;
@@ -67,20 +67,28 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     byte[] mSps = new byte[255];
     byte[] mPps = new byte[128];
     byte[] mMei = new byte[128];
+    private boolean mPortraitScreen = true;
 
-    public MediaStream(Context context, SurfaceHolder holder) {
+    public MediaStream(Context context, SurfaceView mSurfaceView) {
         mApplicationContext = context;
-        mSurfaceHolder = holder;
+        this.mSurfaceView = mSurfaceView;
+        mSurfaceHolder = mSurfaceView.getHolder();
         mEasyIPCamera = new EasyIPCamera();
 //        audioStream = new AudioStream(mEasyIPCamera);
     }
 
-    public void setSurfaceHolder(SurfaceHolder holder){
-        mSurfaceHolder = holder;
-    }
-
     public void setDgree(int dgree) {
         mDgree = dgree;
+    }
+
+    /**
+     * 是否竖屏
+     */
+    public void changeScreenOrientation(){
+        mPortraitScreen = !mPortraitScreen;
+    }
+    public boolean getScreenOrientation(){
+        return mPortraitScreen;
     }
 
     /**
@@ -139,11 +147,19 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
             parameters.setPreviewFormat(mSWCodec ? ImageFormat.YV12 : ImageFormat.NV21);
             List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
             parameters.setPreviewSize(width, height);
-            parameters.setPreviewFpsRange(max[0], max[1]);
+            parameters.setPreviewFrameRate(20);
             mCamera.setParameters(parameters);
             int displayRotation;
             displayRotation = (cameraRotationOffset - mDgree + 360) % 360;
+
             mCamera.setDisplayOrientation(displayRotation);
+//            if(mApplicationContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//                Log.i("info", "landscape");
+//            } else if (mApplicationContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//                Log.i("info", "portrait");
+//                mCamera.setDisplayOrientation(displayRotation);
+//            }
+
             mCamera.setPreviewDisplay(mSurfaceHolder);
             return true;
         } catch (Exception e) {
@@ -207,9 +223,10 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                     byte[] data = tb.buffer;
                     long stamp = tb.time;
                     int[] outLen = new int[1];
-                    if (mDgree == 0) {
+                    if (mDgree == 0 && mPortraitScreen) {
                         Camera.CameraInfo camInfo = new Camera.CameraInfo();
                         Camera.getCameraInfo(mCameraId, camInfo);
+
                         int cameraRotationOffset = camInfo.orientation;
                         if (cameraRotationOffset == 90) {
                             if (mSWCodec) {
@@ -279,9 +296,11 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                                     outputBuffer.get(outData, 0, bufferInfo.size);
                                     mPpsSps = outData;
                                 } else if (type == 5) {
-                                    outputBuffer.get(h264, 0, bufferInfo.size);
+                                    //在关键帧前面加上pps和sps数据
+                                    System.arraycopy(mPpsSps, 0, h264, 0, mPpsSps.length);
+                                    outputBuffer.get(h264, mPpsSps.length, bufferInfo.size);
                                     if(mChannelState == EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_PLAY_STREAM) {
-                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, bufferInfo.size);
+                                        mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, bufferInfo.presentationTimeUs / 1000, h264, 0, mPpsSps.length + bufferInfo.size);
                                     }
                                 } else {
                                     outputBuffer.get(h264, 0, bufferInfo.size);
@@ -399,7 +418,8 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 } else {
                     bitrate = 300;
                 }
-                if (mDgree == 0) {
+
+                if (mDgree == 0 && mPortraitScreen) {
                     x264.create(height, width, 15, bitrate);
                 } else {
                     x264.create(width, height, 15, bitrate);
@@ -506,9 +526,13 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
      * 初始化编码器
      */
     private void initMediaCodec() {
-        framerate = 20;
+        framerate = 25;
         bitrate = 2 * width * height * framerate / 20;
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, height, width, framerate);
+        EncoderDebugger debugger;
+        if(mPortraitScreen)
+            debugger = EncoderDebugger.debug(mApplicationContext, width, height);//width, height
+        else
+            debugger = EncoderDebugger.debug(mApplicationContext, height, width);//width, height
         mConvertor = debugger.getNV21Convertor();
 
         mSps = Base64.decode(debugger.getB64SPS(), Base64.NO_WRAP);
@@ -516,11 +540,16 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
     }
 
     private void startMediaCodec() {
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, height, width, framerate);
+        EncoderDebugger debugger;
+        if(mPortraitScreen)
+            debugger = EncoderDebugger.debug(mApplicationContext, width, height);//width, height
+        else
+            debugger = EncoderDebugger.debug(mApplicationContext, height, width);//width, height
+
         try {
             mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
             MediaFormat mediaFormat;
-            if (mDgree == 0) {
+            if (mDgree == 0 && mPortraitScreen) {
                 mediaFormat = MediaFormat.createVideoFormat("video/avc", height, width);
             } else {
                 mediaFormat = MediaFormat.createVideoFormat("video/avc", width, height);
@@ -598,13 +627,11 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
         mChannelId = mEasyIPCamera.registerCallback(this);
 //        audioStream.setChannelId(mChannelId);
-        if(0 != mEasyIPCamera.active(EasyApplication.getEasyApplication())){
-            Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EasyIPCamera active failed.");
-            return;
-        }
 
+        //int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "admin", "admin", 0, mChannelId, id.getBytes());
         int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes());
         Log.d(TAG, "startup result="+result);
+        //mEasyIPCamera.configUser("admin", "admin");
 
         initEncoder();
         Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_INFO, "EasyIPCamera started");
@@ -646,7 +673,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
         switch(channelState){
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_ERROR:
-                Log.d(TAG, "EASY_IPCAMERA_STATE_ERROR");
+                Log.d(TAG, "kim EASY_IPCAMERA_STATE_ERROR");
                 Util.showDbgMsg(StatusInfoView.DbgLevel.DBG_LEVEL_WARN, "EASY_IPCAMERA_STATE_ERROR");
                 break;
             case EasyIPCamera.ChannelState.EASY_IPCAMERA_STATE_REQUEST_MEDIA_INFO:
@@ -657,10 +684,9 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 buffer.putInt(EasyIPCamera.VideoCodec.EASY_SDK_VIDEO_CODEC_H264);
                 buffer.putInt(framerate);
-//                buffer.putInt(audioStream.getAudioEncCodec());
-//                buffer.putInt(audioStream.getSamplingRate());
-//                buffer.putInt(audioStream.getChannelNum());
-//                buffer.putInt(audioStream.getBitsPerSample());
+                buffer.putInt(0);
+
+                buffer.putInt(0);
                 buffer.putInt(0);
                 buffer.putInt(0);
                 buffer.putInt(0);
@@ -670,7 +696,6 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 
                 buffer.putInt(mSps.length);
                 buffer.putInt(mPps.length);
-
                 buffer.putInt(0);
                 buffer.put(mVps);
                 buffer.put(mSps,0,mSps.length);

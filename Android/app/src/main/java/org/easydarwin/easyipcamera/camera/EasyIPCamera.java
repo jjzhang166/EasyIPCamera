@@ -104,19 +104,19 @@ public class EasyIPCamera {
 
     public native int resetChannel(int channelId);
 
+    public native int configUser(String username, String password);
+
+    public native int deleteUser(String username);
+
     public interface IPCameraCallBack {
         void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr);
     }
 
     public int active(Context context){
-		/*
-		*此Key为个人测试临时Key
-		*如需更换applicationId或者商业使用，请将新的applicationId发邮件至support@easydarwin.org咨询
-		*/
-        String key = "6D72754B7A4A36526D3430414635355A706D4842384F5276636D63755A57467A65575268636E64706269356C59584E356158426A5957316C636D46584446616732504467523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D";
+        String key = "6D72754B7A4A36526D3432416E44316170634A69792B5276636D63755A57467A65575268636E64706269356C59584E356158426A5957316C636D4658444661672F307667523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D";
         int iRet = active(key, context);
         if(iRet != 0){
-            Log.e(TAG, "Key invalid! active failed!!! return : " + iRet);
+            Log.e(TAG, "active libEasyIPCamera failed!!! return : " + iRet);
         }
         return iRet;
     }

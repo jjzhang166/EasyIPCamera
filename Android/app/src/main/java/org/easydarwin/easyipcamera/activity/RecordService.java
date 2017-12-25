@@ -64,7 +64,7 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
 
     private int mChannelId = 1;
     private int mChannelState = 0;
-    private int mFrameRate = 20;
+    private int mFrameRate = 25;
     private int mBitRate;
     private Context mApplicationContext;
     private boolean codecAvailable = false;
@@ -109,7 +109,7 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
 
         Log.d(TAG, String.format("kim createEnvironment Size=%dx%d", windowWidth, windowHeight));
 
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, windowWidth, windowHeight, mFrameRate);
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, windowWidth, windowHeight);
         mSps = Base64.decode(debugger.getB64SPS(), Base64.NO_WRAP);
         mPps = Base64.decode(debugger.getB64PPS(), Base64.NO_WRAP);
         mH264Buffer = new byte[(int) (windowWidth*windowHeight*1.5)];
@@ -119,9 +119,9 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
      * 初始化编码器
      */
     private void initMediaCodec() {
-        mFrameRate = 20;
+        mFrameRate = 25;
         mBitRate = 1200000;
-        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, windowWidth, windowHeight, mFrameRate);
+        EncoderDebugger debugger = EncoderDebugger.debug(mApplicationContext, windowWidth, windowHeight);
         mSps = Base64.decode(debugger.getB64SPS(), Base64.NO_WRAP);
         mPps = Base64.decode(debugger.getB64PPS(), Base64.NO_WRAP);
     }
@@ -195,8 +195,11 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
                                 outputBuffer.get(outData);
                                 mPpsSps = outData;
                             } else if (type == 5) {
-                                outputBuffer.get(mH264Buffer, 0, mBufferInfo.size);
-                                mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, System.currentTimeMillis(), mH264Buffer, 0, mBufferInfo.size);
+                                //在关键帧前面加上pps和sps数据
+                                //在关键帧前面加上pps和sps数据
+                                System.arraycopy(mPpsSps, 0, mH264Buffer, 0, mPpsSps.length);
+                                outputBuffer.get(mH264Buffer, mPpsSps.length, mBufferInfo.size);
+                                mEasyIPCamera.pushFrame(mChannelId, EasyIPCamera.FrameFlag.EASY_SDK_VIDEO_FRAME_FLAG, System.currentTimeMillis(), mH264Buffer, 0,mPpsSps.length+mBufferInfo.size);
                             } else {
                                 outputBuffer.get(mH264Buffer, 0, mBufferInfo.size);
                                 if (System.currentTimeMillis() - timeStamp >= 3000) {
@@ -251,9 +254,9 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void startVirtualDisplay() {
         if (mMpj == null) {
-            mMpj = mMpmngr.getMediaProjection(StreamActivity.mResultCode, StreamActivity.mResultIntent);
-            StreamActivity.mResultCode = 0;
-            StreamActivity.mResultIntent = null;
+            mMpj = mMpmngr.getMediaProjection(StreameActivity.mResultCode, StreameActivity.mResultIntent);
+            StreameActivity.mResultCode = 0;
+            StreameActivity.mResultIntent = null;
 
         }
         mVirtualDisplay = mMpj.createVirtualDisplay("record_screen", windowWidth, windowHeight, screenDensity,
@@ -307,6 +310,7 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
                             e.printStackTrace();
                         }
                     }
+
                     Log.d(TAG, "kim startup result="+result);
                 }
 
