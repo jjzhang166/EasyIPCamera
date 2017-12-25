@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.preference.PreferenceManager;
 
-import org.easydarwin.easyipcamera.camera.MediaStream;
 import org.easydarwin.easyipcamera.config.Config;
 import org.easydarwin.easyipcamera.util.Util;
 
@@ -24,7 +23,6 @@ import java.util.List;
 public class EasyApplication extends Application {
 
     private static EasyApplication mApplication;
-    public static MediaStream sMS;
 
     @Override
     public void onCreate() {

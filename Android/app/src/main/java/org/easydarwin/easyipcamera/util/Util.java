@@ -268,7 +268,7 @@ public class Util {
                     NetworkInterface intf = en.nextElement();
                     for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                         InetAddress inetAddress = enumIpAddr.nextElement();
-                        if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
+                        if (!inetAddress.isLoopbackAddress()) {
                             return inetAddress.getHostAddress().toString();
                         }
                     }

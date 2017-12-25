@@ -82,12 +82,12 @@ public class EncoderDebugger {
     /**
      * Bitrate that will be used with the encoder.
      */
-    private static int BITRATE = 1000000;
+    private final static int BITRATE = 1000000;
 
     /**
      * Framerate that will be used to test the encoder.
      */
-    private static int FRAMERATE = 20;
+    private final static int FRAMERATE = 20;
 
     private final static String MIME_TYPE = "video/avc";
 
@@ -121,11 +121,9 @@ public class EncoderDebugger {
         }).start();
     }
 
-    public synchronized static EncoderDebugger debug(Context context, int width, int height, int framerate) {
+    public synchronized static EncoderDebugger debug(Context context, int width, int height) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(context);
-        FRAMERATE = framerate;
-        BITRATE = 2* width*height*FRAMERATE/20;
         return debug(prefs, width, height);
     }
 
@@ -242,12 +240,6 @@ public class EncoderDebugger {
                 reset();
 
                 mEncoderName = encoders[i].name;
-
-                //2017.02.20
-                // fix: ignore sw encoder
-                if (mEncoderName.contains("google.h264.encoder"))
-                    continue;
-
                 mEncoderColorFormat = encoders[i].formats[j];
 
                 if (VERBOSE)

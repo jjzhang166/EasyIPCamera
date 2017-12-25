@@ -3,12 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.StreamActivity">
+    android:background="@color/colorPrimaryDark"
+    tools:context=".activity.StreameActivity">
 
     <SurfaceView
         android:id="@+id/sv_surfaceview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="@drawable/easy_logo"/>
 
     <TextView
         android:id="@+id/txt_res"
@@ -27,6 +30,15 @@
         android:background="#00ffffff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btn_orientation"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/screen_portrait"
+        android:layout_width="50dp"
+        android:layout_height="50dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
