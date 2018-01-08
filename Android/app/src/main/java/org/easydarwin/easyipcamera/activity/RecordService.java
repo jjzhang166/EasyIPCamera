@@ -302,7 +302,7 @@ public class RecordService extends Service implements EasyIPCamera.IPCameraCallB
             public void run() {
                 int result = -1;
                 while(mIsRunning && result < 0) {
-                    result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC, "", "", "", 0, mChannelId, strId.getBytes());
+                    result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC, "", "", "", 0, mChannelId, strId.getBytes(), -1, null);
                     if(result < 0){
                         try {
                             Thread.sleep(100);

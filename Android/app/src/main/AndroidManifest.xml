@@ -47,13 +47,6 @@
         <service
             android:name=".activity.RecordService"
             android:enabled="true" />
-
-        <receiver android:name=".updatemgr.CompleteReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

@@ -77,7 +77,7 @@ public class EasyIPCamera {
 
     /* 回调函数定义 userptr表示用户自定义数据 */
     public static void onIPCameraCallBack(int channelId, int channelState, byte[] mediaInfo, int userPtr){
-        Log.d(TAG, "kim onIPCameraCallBack channelId="+channelId+", channelState="+channelState);
+        Log.d(TAG, "onIPCameraCallBack channelId="+channelId+", channelState="+channelState);
         //TODO::
 
         synchronized (sCallbacks) {
@@ -92,9 +92,14 @@ public class EasyIPCamera {
 
     public native int active(String key, Context context);
 
-    /* 启动 Rtsp Server */
-	/*设置监听端口, 回调函数及自定义数据 */
-    public native int startup(int listenport, int authType, String realm, String username, String password, int userptr,int channelid, byte[] channelinfo);
+    /* 启动 Rtsp Server
+	*设置监听端口, 回调函数及自定义数据
+	* channelid1 通道1的id
+	* channelinfo1 通道1的地址
+	* channelid2 通道2的id，如果没有通道2设置为-1
+	* channelinfo2 通道2的地址, 如果没有通道2设置为null
+	*/
+    public native int startup(int listenport, int authType, String realm, String username, String password, int userptr,int channelid1, byte[] channelinfo1, int channelid2, byte[] channelinfo2);
 
     /* 终止 Rtsp Server */
     public native int shutdown();

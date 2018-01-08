@@ -527,7 +527,13 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
      */
     private void initMediaCodec() {
         framerate = 25;
-        bitrate = 2 * width * height * framerate / 20;
+
+        //bitrate = 2 * width * height * framerate / 20;
+        bitrate = (int) (width * height * 20 * 2 * 0.05f);
+        if (width >= 1920 || height >= 1920) bitrate *= 0.3;
+        else if (width >= 1280 || height >= 1280) bitrate *= 0.4;
+        else if (width >= 720 || height >= 720) bitrate *= 0.6;
+
         EncoderDebugger debugger;
         if(mPortraitScreen)
             debugger = EncoderDebugger.debug(mApplicationContext, width, height);//width, height
@@ -629,7 +635,7 @@ public class MediaStream implements EasyIPCamera.IPCameraCallBack {
 //        audioStream.setChannelId(mChannelId);
 
         //int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "admin", "admin", 0, mChannelId, id.getBytes());
-        int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes());
+        int result = mEasyIPCamera.startup(iport, EasyIPCamera.AuthType.AUTHENTICATION_TYPE_BASIC,"", "", "", 0, mChannelId, id.getBytes(), -1, null);
         Log.d(TAG, "startup result="+result);
         //mEasyIPCamera.configUser("admin", "admin");
 
