@@ -6,8 +6,6 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
 
  - TCP/UDP 方式分别连接20路下，1080P 4M 定码率，音频格式G711（64K）G726（16K 24K 32K 40K）AAC(64K 96K 128K)都没问题；
  
- - TCP/UDP 方式分别连接20路下，1080P 4M 定码率，音频格式G711（64K）G726（16K 24K 32K 40K）AAC(64K 96K 128K)都没问题；
- 
  - 支持Basic、Digest两种鉴权模式；
 
 
@@ -65,7 +63,7 @@ EasyIPCamera参考live555 testProg中的testOnDemandRTSPServer示例程序，将
 
 ## 版本下载 ##
 
-Android EasyIPCamera Demo下载： [https://fir.im/EasyIPCamera](https://fir.im/EasyIPCamera "https://fir.im/EasyIPCamera")
+Android-EasyIPCamera： [https://fir.im/EasyIPCamera](https://fir.im/EasyIPCamera "https://fir.im/EasyIPCamera")
 
 [![EasyIPCamera](http://www.easydarwin.org/github/images/easyipcamera/EasyIPCamera_Android.png)](https://fir.im/EasyIPCamera "EasyIPCamera")
 
