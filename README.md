@@ -9,6 +9,16 @@ BTW：EasyIPCamera在海思3156A芯片上的性能经过我们半年多的调试
  - 支持Basic、Digest两种鉴权模式；
 
 
+## 功能支持 ##
+
+- [x] 标准、稳定运行的RTSP/RTP服务；
+- [x] 支持RTP over UDP/RTP over TCP；
+- [x] 视频编码格式支持：H.264、H.265；
+- [x] 音频编码格式支持：G.711A、G.711U、G.726、AAC；
+- [x] 支持标准RTSP鉴权认证;
+- [x] 灵活的SDK调用接口支持;
+- [x] 丰富的SDK接口调用示例;
+
 ## 调用示例 ##
 
 - **EasyIPCamera**：在不同的调用平台上，我们实现了不同的调用示例；
