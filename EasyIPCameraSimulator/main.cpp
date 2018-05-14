@@ -28,6 +28,8 @@
 
 #ifdef _WIN32
 #define KEY_EASYIPCAMERA "6D72754B7A4969576B5A734144375A5970306E4A384F5A4659584E35535642445957316C636D46546157313162474630623349755A58686C567778576F4E6A7734456468646D6C754A6B4A68596D397A595541794D4445325257467A65555268636E6470626C526C5957316C59584E35"
+#elif def _ARM
+#define KEY_EASYIPCAMERA "6D72754B7A502B2B7262494144375A5970306E4A384F706C59584E356158426A5957316C636D467A615731316247463062334A584446616732504467523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D"
 #else //x86 linux
 #define KEY_EASYIPCAMERA "6D72754B7A4A4F576B596F4144375A5970306E4A384F706C59584E356158426A5957316C636D467A615731316247463062334A584446616732504467523246326157346D516D466962334E68514449774D545A4659584E355247467964326C75564756686257566863336B3D"
 #endif
@@ -39,7 +41,7 @@ char* ConfigIP	=	"127.0.0.1";			//Default EasyDarwin Address 183.220.236.189
 char* ConfigPort=	"8554";					//Default EasyDarwin Port121.40.50.44
 char* ConfigName=	"channel";	//Default RTSP Push StreamName
 char* H264FileName = "./channel0.h264";
-int	  OutputCount = 1;					//输出流路数
+int	  OutputCount = 16;					//输出流路数
 
 HANDLE g_FileCapThread[MAX_CHANNELS] ;
 FILE * fES[MAX_CHANNELS];
@@ -264,16 +266,14 @@ int main(int argc, char * argv[])
 		exit(1);
 	}
 
-	/*bool bSuc = GetLocalIP(szIP);
+	bool bSuc = GetLocalIP(szIP);
 	if (!bSuc)
 	{
 		printf("获取本机IP失败！\n");
 		printf("Press Enter exit...\n");
 		getchar();
 		return 0;
-	}*/
-	sprintf(szIP, "127.0.0.1");
-
+	}
 	int nServerPort = GetAvaliblePort(atoi(ConfigPort));
 
 
@@ -347,11 +347,6 @@ int main(int argc, char * argv[])
 
     printf("Press Enter exit...\n");
     getchar();
-	  getchar();
-	    getchar();
-		  getchar();
-		    getchar();
-			  getchar();
 
 	for(int nI=0; nI<OutputCount; nI++)
 	{
@@ -419,9 +414,9 @@ unsigned int _stdcall  CaptureFileThread(void* lParam)
 				(unsigned char)pbuf[position-4]== 0x00 && 
 				(unsigned char)pbuf[position-3] == 0x00 &&
 				(unsigned char)pbuf[position-2] == 0x01 &&
-				(naltype == 0x07 || naltype == 0x01 || naltype == 0x05) )
+				(naltype == 0x07 ||naltype == 0x01||naltype==0x05 ) )
 			{
-				int framesize = position - 5;
+				int framesize = position-5 ;
 				naltype = (unsigned char)pbuf[4] & 0x1F;
 
 				char sps[512] = {0};
@@ -430,7 +425,7 @@ unsigned int _stdcall  CaptureFileThread(void* lParam)
 
 				if (naltype == 0x07)//I frame
 				{
-					GetH264SPSandPPS(pbuf, framesize, (char*)pChannelInfo->mediaInfo.u8Sps, 
+					GetH264SPSandPPS(pbuf, position, (char*)pChannelInfo->mediaInfo.u8Sps, 
 						(int*)&pChannelInfo->mediaInfo.u32SpsLength, (char*)pChannelInfo->mediaInfo.u8Pps, (int*)&pChannelInfo->mediaInfo.u32PpsLength);
 				}
 
@@ -452,7 +447,6 @@ unsigned int _stdcall  CaptureFileThread(void* lParam)
 							break;
 						}
 					}
-
 					frame.pBuffer = (Easy_U8*)(pbuf+iOffset+4);
 					frame.u32AVFrameFlag = EASY_SDK_VIDEO_FRAME_FLAG;
 					frame.u32AVFrameLen  = framesize-iOffset-4;
